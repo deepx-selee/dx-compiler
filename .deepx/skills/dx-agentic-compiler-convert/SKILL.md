@@ -10,7 +10,28 @@ description: PyTorch to ONNX model conversion
 
 ## Trigger Words
 
-"convert", "export", "PT to ONNX", "torch to onnx", "pytorch export"
+"convert", "export", "PT to ONNX", "torch to onnx", "pytorch export",
+"YOLO to deepx", "format=deepx", "export to deepx"
+
+## Phase 0: Path Selection (Ultralytics YOLO detection → DeepX shortcut)
+
+**Before** running the manual PT→ONNX pipeline below, check whether the one-shot
+Ultralytics exporter applies:
+
+> **If** the model is an Ultralytics YOLO **detection** model AND the target is
+> DeepX NPU → **prefer the one-shot `format=deepx` path**, which runs ONNX export
+> → INT8 EMA calibration → `dx_com` compilation → packaging in a single command:
+> ```bash
+> yolo export model=yolo26n.pt format=deepx     # creates 'yolo26n_deepx_model/'
+> ```
+> This avoids the most common manual-pipeline errors (multi-output ONNX graph,
+> NHWC/NCHW mismatch, calibration setup). See
+> `.deepx/toolsets/ultralytics-deepx-export.md` for the full reference, args,
+> constraints (x86-64 Linux only, detection only, INT8 enforced), and deployment.
+
+**Fall back to the manual PT→ONNX→`dxcom` pipeline below** only when the one-shot
+path does not apply: non-detection tasks (seg/pose/cls/obb), non-YOLO or custom
+graphs, or when fine control over `config.json` / quantization is required.
 
 ## Prerequisites Checklist
 

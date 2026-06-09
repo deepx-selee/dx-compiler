@@ -929,3 +929,26 @@ DX_PASSWORD=<password>
       gen_log=True,
   )
   ```
+
+## 25. [DX_COMPILER] Hand-Rolling PT→ONNX→dxcom for a YOLO Detection Model
+
+- **Symptom**: For an Ultralytics YOLO **detection** model headed to DeepX, the agent
+  manually exports ONNX, writes a config.json, and invokes `dxcom` — hitting the usual
+  multi-output-graph (Pitfall: 6 outputs instead of 1) and NHWC/NCHW (#18) errors.
+- **Root Cause**: Ultralytics now ships a first-class `format=deepx` exporter that does
+  ONNX export → INT8 EMA calibration → `dx_com` compilation → packaging in ONE command.
+  Hand-rolling the pipeline re-introduces errors the integrated exporter already handles.
+- **Fix**: For YOLO **detection** + DeepX, use the one-shot path:
+  ```bash
+  yolo export model=yolo26n.pt format=deepx     # creates 'yolo26n_deepx_model/'
+  ```
+  ```python
+  from ultralytics import YOLO
+  YOLO("yolo26n.pt").export(format="deepx")      # int8=True enforced
+  ```
+  Notes: **x86-64 Linux only** (`dx_com` no ARM64); **detection only** (other tasks →
+  manual fallback); **INT8 enforced** (`int8=False` overridden); output is a **directory**
+  `<model>_deepx_model/{*.dxnn,config.json,metadata.yaml}`, not a bare `.dxnn`. Deploy with
+  `YOLO("<model>_deepx_model")`. Full reference: `.deepx/toolsets/ultralytics-deepx-export.md`.
+  Fall back to the manual PT→ONNX→`dxcom` pipeline only for non-detection / non-YOLO /
+  custom-graph cases or when fine `config.json` control is required.

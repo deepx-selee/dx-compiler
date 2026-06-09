@@ -154,6 +154,7 @@ dx_com.compile(model="model.onnx", output_dir="output/", config="config.json")
 | **CLI, command line** | `.deepx/toolsets/dxcom-cli.md` |
 | **Python API, dx_com.compile** | `.deepx/toolsets/dxcom-api.md` |
 | **config, JSON, schema** | `.deepx/toolsets/config-schema.md` |
+| **Ultralytics, YOLO, .pt, format=deepx, export to deepx** | `.deepx/toolsets/ultralytics-deepx-export.md` |
 | **calibration, quantization, INT8** | `.deepx/instructions/compilation-workflow.md` |
 | **PPU, YOLO, detection** | `.deepx/toolsets/config-schema.md`, `.deepx/instructions/compilation-workflow.md` |
 | **validate, verify, check** | `.deepx/skills/dx-agentic-compiler-validate.md` |
@@ -203,6 +204,8 @@ dx-agentic-dev/<session_id>/
 교정 데이터는 `dx_com/calibration_dataset/` (100개 JPEG 이미지)에 있습니다. 없는 경우,
 `example/2-download_sample_calibration_dataset.sh`를 실행하여 설정하세요.
 config.json에서 항상 상대 경로 (`./calibration_dataset`)를 사용하세요. 절대 경로는 사용하지 마세요.
+
+{{FRAGMENT:ultralytics-deepx-export}}
 
 {{FRAGMENT:no-placeholder-code}}
 {{FRAGMENT:experimental-features-prohibited}}
