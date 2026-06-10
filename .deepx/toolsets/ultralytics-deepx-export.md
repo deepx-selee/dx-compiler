@@ -92,8 +92,16 @@ integration (verified against `ultralytics/utils/export/deepx.py` and
 
 | Component | Who installs it | How |
 |---|---|---|
-| `dx_com` (compiler, **export**) | **Ultralytics auto-installs** | on first `format=deepx`, `check_requirements("dx_com", cmds="-f https://sdk.deepx.ai/release/dxcom/v2.3.0/index.html")` (pip from the DeepX SDK index) |
+| `dx_com` (compiler, **export**) | **Ultralytics auto-installs** | on first `format=deepx`, Ultralytics' own `check_requirements("dx_com", …)` pip-installs it from the DeepX SDK index. **The version is pinned inside the installed `ultralytics` release and tracks it** — upgrading `ultralytics` upgrades the pin. |
 | `dx_engine` + `dxrt-cli` (runtime, **deploy**) | **End-user installs** (with one exception) | Ultralytics auto-install works **only on Debian Trixie + arm64** (sixfab-dx apt pkg + `/opt/sixfab-dx/wheels/dx_engine-*.whl`); on every other host it raises and asks you to install manually |
+
+> **Do NOT manually `pip install dx-com` from a hardcoded SDK URL/version.** The
+> version string embedded in Ultralytics' `check_requirements` call (e.g. a
+> `…/dxcom/vX.Y.Z/index.html` URL) belongs to that ultralytics release — copying it
+> into a manual `pip install -f …` pins a **stale** compiler. Let
+> `model.export(format="deepx")` install `dx_com` itself; to update, upgrade
+> `ultralytics`. (The standalone direct-`dxcom` path is a separate workflow — there,
+> use the normal `pip install dx-com`; see `dxcom-cli.md`.)
 
 So **export needs only `ultralytics` (+ auto `dx_com`)**, but **deploy needs the
 DeepX runtime present**. On a non-Debian-Trixie-arm64 host — including the standard
@@ -107,19 +115,21 @@ OSError: dx_engine is not installed. Auto-install is only supported on Debian Tr
 ```
 
 **When you see those messages, "install dx_engine manually" in the dx-all-suite
-context means: build dx-runtime** (which provides both `dxrt-cli` and `dx_engine`).
-Do NOT `pip install dx_engine` on x86-64 and do NOT fake the import via
-`PYTHONPATH`/`LD_LIBRARY_PATH` — both are prohibited bypasses:
+context means: install the `dx_rt` runtime**, which provides BOTH `dxrt-cli` and the
+`dx_engine` Python module. **`dx_app` and `dx_stream` are NOT needed** for Ultralytics
+export/deploy — `dx_engine` is a `dx_rt` artifact, not a `dx_app` one — so exclude
+them to save build time. Do NOT `pip install dx_engine` on x86-64 and do NOT fake the
+import via `PYTHONPATH`/`LD_LIBRARY_PATH` — both are prohibited bypasses:
 
 ```bash
 # 1. DeepX runtime sanity check — judge PASS/FAIL by TEXT OUTPUT, not exit code.
 #    PASS = "Sanity check PASSED!" and NO [ERROR] lines. Never pipe through tail/head/grep.
 bash dx-runtime/scripts/sanity_check.sh --dx_rt
 
-# 2. If dxrt-cli / dx_engine is missing → build dx-runtime (order: dx_rt → dx_app):
+# 2. If dxrt-cli / dx_engine is missing → install dx_rt ONLY (fw + driver + dx_rt;
+#    --exclude-app --exclude-stream skips the unneeded app/stream builds):
 python -c "import dx_engine; print('dx_engine OK')" 2>/dev/null || {
     bash dx-runtime/install.sh --all --exclude-app --exclude-stream --skip-uninstall --venv-reuse
-    cd dx-runtime/dx_app && ./install.sh && ./build.sh && cd -
     bash dx-runtime/scripts/sanity_check.sh --dx_rt   # MUST PASS, then re-run inference
 }
 ```
