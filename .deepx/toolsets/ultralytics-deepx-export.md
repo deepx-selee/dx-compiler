@@ -32,9 +32,15 @@ invocation automatically — eliminating the most common manual-pipeline errors.
 
 ```bash
 pip install ultralytics
-# dx_com is installed automatically from the DeepX SDK on first `format=deepx` export.
-# dx_engine (inference runtime) is installed automatically on first deployment use.
+# dx_com (the compiler) is pulled in automatically on the first `format=deepx` export.
 ```
+
+> **dx_engine is NOT pip-auto-installed in the DEEPX suite.** Ultralytics' upstream
+> doc says the runtime "installs automatically," but inside dx-all-suite the
+> `dx_engine` inference runtime is a **build artifact of `dx-runtime/dx_app`**, not a
+> PyPI package. Export (compile) needs only `ultralytics` + `dx_com`; **deployment**
+> (running the exported model) needs `dx_engine` from a built dx-runtime. See
+> "Deployment prerequisites" below before the deploy step.
 
 ## Export — API and CLI
 
@@ -77,6 +83,36 @@ yolo26n_deepx_model/
 The output is a **directory** (`*_deepx_model/`), not a bare `.dxnn`. The
 `metadata.yaml` is what lets the Ultralytics inference pipeline reattach class
 names and the postprocessor.
+
+## Deployment prerequisites — dx_engine / NPU runtime (HARD GATE)
+
+Deployment runs the `.dxnn` on the NPU via the `dx_engine` runtime. **NPU hardware
+alone is not enough** — `dx_engine` must be present. If the host has the NPU but
+dx-runtime is not installed, the deploy step fails with `No module named
+'dx_engine'`. Do NOT `pip install dx_engine` (it is not a PyPI package) and do NOT
+declare success on the export alone. Run this check-and-recover sequence first:
+
+```bash
+# 1. dx-runtime sanity check — judge PASS/FAIL by TEXT OUTPUT, not exit code.
+#    PASS = "Sanity check PASSED!" and NO [ERROR] lines. Never pipe through tail/head/grep.
+bash dx-runtime/scripts/sanity_check.sh --dx_rt
+
+# 2. If dx_engine is missing → build it from dx-runtime/dx_app:
+python -c "import dx_engine; print('dx_engine OK')" 2>/dev/null || {
+    bash dx-runtime/install.sh --all --exclude-app --exclude-stream --skip-uninstall --venv-reuse
+    cd dx-runtime/dx_app && ./install.sh && ./build.sh && cd -
+    bash dx-runtime/scripts/sanity_check.sh --dx_rt   # MUST PASS after install
+}
+```
+
+- If `sanity_check.sh` reports **"Device initialization failed" / NPU hardware
+  error**, software install cannot fix it — the NPU needs a **cold boot** (full power
+  cycle), then re-run the sanity check. STOP and tell the user; do not bypass.
+- Build order is **dx_rt → dx_app**; never set `PYTHONPATH`/`LD_LIBRARY_PATH` by hand
+  to fake a `dx_engine` import — that is a prohibited bypass.
+- This mirrors the suite-level **Prerequisites Check (HARD GATE)** and **Sanity Check
+  Failure Recovery** in the top-level `CLAUDE.md`; apply them when a deploy step is
+  requested, even though the task routed through dx-compiler.
 
 ## Deploy — run inference on the exported model
 
