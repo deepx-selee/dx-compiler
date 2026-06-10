@@ -84,32 +84,49 @@ The output is a **directory** (`*_deepx_model/`), not a bare `.dxnn`. The
 `metadata.yaml` is what lets the Ultralytics inference pipeline reattach class
 names and the postprocessor.
 
-## Deployment prerequisites — dx_engine / NPU runtime (HARD GATE)
+## Deployment prerequisites — dx_engine / DeepX runtime (HARD GATE)
 
-Deployment runs the `.dxnn` on the NPU via the `dx_engine` runtime. **NPU hardware
-alone is not enough** — `dx_engine` must be present. If the host has the NPU but
-dx-runtime is not installed, the deploy step fails with `No module named
-'dx_engine'`. Do NOT `pip install dx_engine` (it is not a PyPI package) and do NOT
-declare success on the export alone. Run this check-and-recover sequence first:
+Export and deployment have **different** dependency handling in the Ultralytics
+integration (verified against `ultralytics/utils/export/deepx.py` and
+`ultralytics/nn/backends/deepx.py`):
+
+| Component | Who installs it | How |
+|---|---|---|
+| `dx_com` (compiler, **export**) | **Ultralytics auto-installs** | on first `format=deepx`, `check_requirements("dx_com", cmds="-f https://sdk.deepx.ai/release/dxcom/v2.3.0/index.html")` (pip from the DeepX SDK index) |
+| `dx_engine` + `dxrt-cli` (runtime, **deploy**) | **End-user installs** (with one exception) | Ultralytics auto-install works **only on Debian Trixie + arm64** (sixfab-dx apt pkg + `/opt/sixfab-dx/wheels/dx_engine-*.whl`); on every other host it raises and asks you to install manually |
+
+So **export needs only `ultralytics` (+ auto `dx_com`)**, but **deploy needs the
+DeepX runtime present**. On a non-Debian-Trixie-arm64 host — including the standard
+**x86-64 dx-all-suite** — the Ultralytics backend does NOT auto-install the runtime;
+it raises one of these and stops:
+
+```
+DeepX inference requires the DeepX runtime. Attempting install from https://github.com/sixfab/sixfab_dx/
+OSError: DeepX runtime auto-install is only supported on Debian Trixie (arm64).
+OSError: dx_engine is not installed. Auto-install is only supported on Debian Trixie (arm64). Please install dx_engine manually and try again.
+```
+
+**When you see those messages, "install dx_engine manually" in the dx-all-suite
+context means: build dx-runtime** (which provides both `dxrt-cli` and `dx_engine`).
+Do NOT `pip install dx_engine` on x86-64 and do NOT fake the import via
+`PYTHONPATH`/`LD_LIBRARY_PATH` — both are prohibited bypasses:
 
 ```bash
-# 1. dx-runtime sanity check — judge PASS/FAIL by TEXT OUTPUT, not exit code.
+# 1. DeepX runtime sanity check — judge PASS/FAIL by TEXT OUTPUT, not exit code.
 #    PASS = "Sanity check PASSED!" and NO [ERROR] lines. Never pipe through tail/head/grep.
 bash dx-runtime/scripts/sanity_check.sh --dx_rt
 
-# 2. If dx_engine is missing → build it from dx-runtime/dx_app:
+# 2. If dxrt-cli / dx_engine is missing → build dx-runtime (order: dx_rt → dx_app):
 python -c "import dx_engine; print('dx_engine OK')" 2>/dev/null || {
     bash dx-runtime/install.sh --all --exclude-app --exclude-stream --skip-uninstall --venv-reuse
     cd dx-runtime/dx_app && ./install.sh && ./build.sh && cd -
-    bash dx-runtime/scripts/sanity_check.sh --dx_rt   # MUST PASS after install
+    bash dx-runtime/scripts/sanity_check.sh --dx_rt   # MUST PASS, then re-run inference
 }
 ```
 
 - If `sanity_check.sh` reports **"Device initialization failed" / NPU hardware
   error**, software install cannot fix it — the NPU needs a **cold boot** (full power
   cycle), then re-run the sanity check. STOP and tell the user; do not bypass.
-- Build order is **dx_rt → dx_app**; never set `PYTHONPATH`/`LD_LIBRARY_PATH` by hand
-  to fake a `dx_engine` import — that is a prohibited bypass.
 - This mirrors the suite-level **Prerequisites Check (HARD GATE)** and **Sanity Check
   Failure Recovery** in the top-level `CLAUDE.md`; apply them when a deploy step is
   requested, even though the task routed through dx-compiler.
@@ -155,6 +172,11 @@ sufficient for standalone inference. See `dx-runtime/dx_app/CLAUDE.md`.
   fall back to manual PT→ONNX→`dxcom` (`dx-agentic-compiler-convert` + `dxcom-cli.md`).
 - **Can I deploy custom-trained YOLO?** Yes — any detection model trained with
   Ultralytics Train Mode and exported with `format="deepx"` deploys on DX-M1.
+- **Deploy fails with `OSError: dx_engine is not installed … install dx_engine
+  manually and try again`.** Expected on x86-64. Ultralytics only auto-installs the
+  runtime on Debian Trixie/arm64. On the dx-all-suite, "install manually" = build
+  dx-runtime — see "Deployment prerequisites" above. Export (`dx_com`) is unaffected;
+  it always auto-installs via pip.
 
 ## References
 
