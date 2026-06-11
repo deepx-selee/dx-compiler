@@ -240,6 +240,7 @@ dx_com.compile(model="model.onnx", output_dir="output/", config="config.json")
 | **config, JSON, schema** | `.deepx/toolsets/config-schema.md` |
 | **Ultralytics, YOLO, .pt, format=deepx, export to deepx** | `.deepx/toolsets/ultralytics-deepx-export.md` |
 | **Ultralytics retrain/train, fine-tune, mAP, FPS, domain dataset, evaluate** | `.deepx/toolsets/ultralytics-train-eval.md` |
+| **PaddleOCR, RapidDoc, PaddlePaddle, OCR app, video/webcam OCR, PDF to markdown, document parsing** | `.deepx/toolsets/paddlepaddle-deepx.md` |
 | **calibration, quantization, INT8** | `.deepx/instructions/compilation-workflow.md` |
 | **PPU, YOLO, detection** | `.deepx/toolsets/config-schema.md`, `.deepx/instructions/compilation-workflow.md` |
 | **validate, verify, check** | `.deepx/skills/dx-agent-compiler-validate.md` |
