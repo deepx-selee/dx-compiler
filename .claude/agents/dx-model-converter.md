@@ -16,7 +16,7 @@ tools:
 
 <!-- AUTO-GENERATED from .deepx/ — DO NOT EDIT DIRECTLY -->
 <!-- Source: .deepx/agents/dx-model-converter.md -->
-<!-- Run: dx-agentic-gen generate -->
+<!-- Run: dx-agent-gen generate -->
 
 **Response Language**: Match your response language to the user's prompt language — when asking questions or responding, use the same language the user is using. When responding in Korean, keep English technical terms in English. Do NOT transliterate into Korean phonetics (한글 음차 표기 금지). <!-- KOREAN-OK: rule text references the Korean notation term agents must recognize -->
 
@@ -216,26 +216,26 @@ onnx.save(model_simplified, "model_simplified.onnx")
 ## Output Isolation
 
 All output files MUST be saved to the session working directory provided by
-dx-compiler-builder (`dx-agentic-dev/<session_id>/`). If no working directory
+dx-compiler-builder (`dx-agent-dev/<session_id>/`). If no working directory
 is specified, create one:
 
 > **NEVER reuse previous session artifacts.** Do NOT check, list, browse, or
-> reference files from previous sessions in `dx-agentic-dev/`. Each conversion
+> reference files from previous sessions in `dx-agent-dev/`. Each conversion
 > run MUST create a new session directory with a fresh timestamp. Even if a
 > previous session exported the exact same model, always re-download and
-> re-export from scratch. Do NOT run `ls dx-agentic-dev/` or check for
+> re-export from scratch. Do NOT run `ls dx-agent-dev/` or check for
 > existing `.onnx` files from past runs.
 
 ```bash
 SESSION_ID="$(date +%Y%m%d-%H%M%S)_$(basename model.pt .pt)_pt_to_onnx"  # local timezone (NOT UTC)
-WORK_DIR="dx-agentic-dev/${SESSION_ID}"
+WORK_DIR="dx-agent-dev/${SESSION_ID}"
 mkdir -p "${WORK_DIR}"
 ```
 
 Save both the raw ONNX file (and simplified ONNX if user requested simplification)
 in the working directory:
 ```
-dx-agentic-dev/<session_id>/
+dx-agent-dev/<session_id>/
 ├── model.onnx              (raw export — primary output)
 ├── model_sim.onnx          (optional — only if user requested simplification)
 └── README.md               (session report)

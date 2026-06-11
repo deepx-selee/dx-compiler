@@ -1,0 +1,8 @@
+verify image: /data/home/dhyang/github/datasets/brain-tumor/images/val/val_1 (1).jpg
+fp32 PyTorch : 1 boxes, classes=[1]
+WARNING ⚠️ Unable to automatically guess model task, assuming 'task=detect'. Explicitly define task for your model, i.e. 'task=detect', 'segment', 'classify', 'pose', 'obb' or 'semantic'.
+Loading yolo26n_braintumor_deepx_model for DEEPX inference...
+INT8 DeepX   : 1 boxes, classes=[1]
+count_diff=0 (tol=2) -> OK
+class_overlap -> OK
+RESULT: PASS

@@ -14,7 +14,7 @@ their original English form. Do NOT transliterate English terms into Korean phon
 
 ## Recommended Model (Pre-Flight Check)
 
-DX Agentic Development requires strong instruction following and knowledge base
+DX Agent-Driven Development requires strong instruction following and knowledge base
 utilization. Before starting any task, check if you are running as one of the
 recommended models:
 
@@ -28,7 +28,7 @@ output the following notice at the beginning of your first response:
 ══════════════════════════════════════════════════════════════
 ⚠  DX-AGENTIC-DEV: MODEL NOTICE
 
-DX Agentic Development recommends Claude Sonnet 4.6+ or
+DX Agent-Driven Development recommends Claude Sonnet 4.6+ or
 Opus 4.6+. Your current model may produce lower quality
 in instruction following, knowledge base utilization, and
 API accuracy. Please switch to a recommended model.
@@ -142,9 +142,9 @@ instructions. The user expects a compiled `.dxnn` model, not a recipe.
 pip install ultralytics  # if needed
 python -c "from ultralytics import YOLO; YOLO('yolo11n.pt')"
 
-# Step 2: Export to ONNX (using skill /dx-agentic-compiler-convert)
-# Step 3: Compile to DXNN (using skill /dx-agentic-compiler-compile)
-# Step 4: Validate (using skill /dx-agentic-compiler-validate)
+# Step 2: Export to ONNX (using skill /dx-agent-compiler-convert)
+# Step 3: Compile to DXNN (using skill /dx-agent-compiler-compile)
+# Step 4: Validate (using skill /dx-agent-compiler-validate)
 ```
 
 ### Anti-Patterns (NEVER Do)
@@ -199,9 +199,9 @@ config.json for new models — read a sample JSON of a similar model type.
 
 | Skill | Description |
 |---|---|
-| `/dx-agentic-compiler-convert` | Convert PyTorch model to ONNX |
-| `/dx-agentic-compiler-compile` | Compile ONNX model to DXNN |
-| `/dx-agentic-compiler-validate` | Validate compilation output |
+| `/dx-agent-compiler-convert` | Convert PyTorch model to ONNX |
+| `/dx-agent-compiler-compile` | Compile ONNX model to DXNN |
+| `/dx-agent-compiler-validate` | Validate compilation output |
 | `/dx-swe-brainstorm` | Brainstorm, propose 2-3 approaches, spec self-review, then plan |
 | `/dx-swe-tdd` | Validation-driven development with optional Red-Green-Refactor for unit tests |
 | `/dx-swe-verify` | Verify before claiming completion — evidence before assertions |
@@ -219,8 +219,8 @@ config.json for new models — read a sample JSON of a similar model type.
 
 | If the task mentions... | Read these files |
 |---|---|
-| **PyTorch, PT, export, convert** | `.deepx/agents/dx-model-converter.md`, `.deepx/skills/dx-agentic-compiler-convert.md` |
-| **ONNX, compile, DXNN, dxcom** | `.deepx/agents/dx-dxnn-compiler.md`, `.deepx/skills/dx-agentic-compiler-compile.md` |
+| **PyTorch, PT, export, convert** | `.deepx/agents/dx-model-converter.md`, `.deepx/skills/dx-agent-compiler-convert.md` |
+| **ONNX, compile, DXNN, dxcom** | `.deepx/agents/dx-dxnn-compiler.md`, `.deepx/skills/dx-agent-compiler-compile.md` |
 | **CLI, command line** | `.deepx/toolsets/dxcom-cli.md` |
 | **Python API, dx_com.compile** | `.deepx/toolsets/dxcom-api.md` |
 | **config, JSON, schema** | `.deepx/toolsets/config-schema.md` |
@@ -228,7 +228,7 @@ config.json for new models — read a sample JSON of a similar model type.
 | **Ultralytics retrain/train, fine-tune, mAP, FPS, domain dataset, evaluate** | `.deepx/toolsets/ultralytics-train-eval.md` |
 | **calibration, quantization, INT8** | `.deepx/instructions/compilation-workflow.md` |
 | **PPU, YOLO, detection** | `.deepx/toolsets/config-schema.md`, `.deepx/instructions/compilation-workflow.md` |
-| **validate, verify, check** | `.deepx/skills/dx-agentic-compiler-validate.md` |
+| **validate, verify, check** | `.deepx/skills/dx-agent-compiler-validate.md` |
 | **error, fail, bug** | `.deepx/memory/common_pitfalls.md` |
 | **sample, example, test compile** | `.deepx/instructions/compilation-workflow.md` (Sample Model Workflow section) |
 | **Brainstorm, plan, design** | `.deepx/skills/dx-swe-brainstorm.md` |
@@ -241,7 +241,7 @@ config.json for new models — read a sample JSON of a similar model type.
 
 ## Output Isolation
 
-All compilation artifacts go to `dx-agentic-dev/<session_id>/` by default. Each
+All compilation artifacts go to `dx-agent-dev/<session_id>/` by default. Each
 compilation session uses a unique working directory to keep artifacts together and
 prevent overwrites.
 
@@ -254,7 +254,7 @@ prevent overwrites.
 
 **Working directory contents** after compilation:
 ```
-dx-agentic-dev/<session_id>/
+dx-agent-dev/<session_id>/
 ├── calibration_dataset   → ../../dx_com/calibration_dataset/ (symlink)
 ├── config.json
 ├── model.onnx
@@ -291,8 +291,8 @@ Always use relative paths (`./calibration_dataset`) in config.json, never absolu
     - **(d)** Save the session log to `${WORK_DIR}/session.log` — must contain **actual command execution output** captured via `tee`, NOT a hand-written summary
     - **(e)** Include verification results (PASS/FAIL) and all artifact paths in the final summary table
     - If any step fails, debug and fix before proceeding. The `.dxnn` file alone is NOT a deliverable.
-    - **Even when the user specifies a custom output directory** (e.g., a source directory instead of `dx-agentic-dev/`), these artifacts are still MANDATORY.
-15. **Never reuse previous session artifacts**: NEVER check, list, browse, or reuse artifacts from previous sessions in `dx-agentic-dev/`. Each compilation run MUST create a new session directory with a fresh timestamp. Even if a previous session compiled the same model, always re-download, re-export, and re-compile from scratch. Do NOT run `ls dx-agentic-dev/` or check for existing `.onnx`/`.dxnn` files from past runs.
+    - **Even when the user specifies a custom output directory** (e.g., a source directory instead of `dx-agent-dev/`), these artifacts are still MANDATORY.
+15. **Never reuse previous session artifacts**: NEVER check, list, browse, or reuse artifacts from previous sessions in `dx-agent-dev/`. Each compilation run MUST create a new session directory with a fresh timestamp. Even if a previous session compiled the same model, always re-download, re-export, and re-compile from scratch. Do NOT run `ls dx-agent-dev/` or check for existing `.onnx`/`.dxnn` files from past runs.
 16. **venv is MANDATORY in setup.sh**: Generated `setup.sh` MUST create and activate a virtual environment before any `pip install`. On Ubuntu 24.04+, PEP 668 blocks system-wide pip installs. Use `python3 -m venv` with `${VIRTUAL_ENV:-}` check. Generated `run.sh` MUST check venv activation and auto-activate or error if missing.
 17. **Cross-validation with precompiled reference model**: When a precompiled DXNN for the same model exists in `dx-runtime/dx_app/assets/models/`, run verify.py with BOTH the precompiled and generated models (Phase 5.7). Both fail → verify.py bug. Precompiled passes, generated fails → compilation problem. See `.deepx/agents/dx-dxnn-compiler.md` Phase 5.7.
 18. **NHWC/NCHW DataLoader mismatch**: The dxcom CLI's default dataloader loads images in NHWC `[1,H,W,C]`. If the ONNX model expects NCHW `[1,C,H,W]` (most PyTorch-exported models), CLI compilation will fail with `DataLoaderError: Input shape mismatch`. **Fix**: Use the Python API (`dx_com.compile()`) with a custom torch DataLoader that produces NCHW tensors. See `.deepx/memory/common_pitfalls.md` pitfall #18.
@@ -335,7 +335,7 @@ YOLO("yolo26n.pt").export(format="deepx")      # int8=True is enforced
 
 **Prefer this path** for Ultralytics YOLO **detection** models targeting DeepX —
 it avoids the common manual PT→ONNX→`dxcom` errors. Fall back to the manual
-pipeline (`dx-agentic-compiler-convert` → `dxcom`) only for non-detection tasks,
+pipeline (`dx-agent-compiler-convert` → `dxcom`) only for non-detection tasks,
 non-YOLO/custom graphs, or when fine control over `config.json` is required.
 
 Key facts (full reference: `.deepx/toolsets/ultralytics-deepx-export.md`):
@@ -415,13 +415,13 @@ When using the superpowers `brainstorming` skill or `/dx-swe-brainstorm`:
 ## Mandatory Process Skill Sequence — All Code Generation (HARD GATE)
 
 This gate applies to ALL sessions that generate code artifacts in
-`dx-agentic-dev/<session_id>/`. It is independent of the "Internal Development"
-SWE Process Gates — those apply to dx-agentic-dev infrastructure work; THIS gate
+`dx-agent-dev/<session_id>/`. It is independent of the "Internal Development"
+SWE Process Gates — those apply to dx-agent-dev infrastructure work; THIS gate
 applies to user-facing code generation (inference apps, pipelines, compilation).
 
 ### When This Gate Applies
 
-Any session that produces files in `dx-agentic-dev/<session_id>/` MUST follow
+Any session that produces files in `dx-agent-dev/<session_id>/` MUST follow
 the complete process skill sequence below. This includes:
 - ONNX → DXNN compilation sessions
 - Python/C++ inference app generation (dx_app)
@@ -441,10 +441,10 @@ still applies.
 | Step | Skill | Requirement |
 |------|-------|-------------|
 | 1 | `/dx-skill-router` | **Always** — invoke BEFORE any action. Already enforced by `skill-router-mandatory` fragment. |
-| 2 | `/dx-agentic-brainstorm` | **All non-trivial code generation** — gather requirements, propose approaches, get approval before any file creation. |
+| 2 | `/dx-agent-brainstorm` | **All non-trivial code generation** — gather requirements, propose approaches, get approval before any file creation. |
 | 3 | `/dx-swe-writing-plans` | **Always** — produce a structured implementation plan for every code generation session, regardless of complexity. |
-| 4 | `/dx-agentic-tdd` | **Always** — define acceptance criteria (Red), generate artifacts (Green), verify immediately (Verify). |
-| 5 | `/dx-agentic-verify` | **Always** — before declaring DONE, provide evidence of working artifacts. Assertions without evidence are prohibited. |
+| 4 | `/dx-agent-tdd` | **Always** — define acceptance criteria (Red), generate artifacts (Green), verify immediately (Verify). |
+| 5 | `/dx-agent-verify` | **Always** — before declaring DONE, provide evidence of working artifacts. Assertions without evidence are prohibited. |
 
 ### Sequence Enforcement Rules
 
@@ -479,15 +479,15 @@ This sequence defines **WHEN** each skill is invoked (workflow order).
 The Artifact Verification Gate defines **HOW** each artifact is verified
 (specific commands per file type). They work together:
 
-- Step 4 (`/dx-agentic-tdd`) uses the verification commands from the Artifact
+- Step 4 (`/dx-agent-tdd`) uses the verification commands from the Artifact
   Verification Gate (syntax checks, execution tests, import resolution).
-- Step 5 (`/dx-agentic-verify`) confirms all mandatory deliverables
+- Step 5 (`/dx-agent-verify`) confirms all mandatory deliverables
   exist and pass the Artifact Verification Gate checks.
 
 ### Invoke = Actual Tool Call
 
 "Invoke a skill" means calling the `skill` tool to load it. Writing "Using
-dx-agentic-tdd" in text is NOT an invocation — the tool must be called. If you did not
+dx-agent-tdd" in text is NOT an invocation — the tool must be called. If you did not
 call the `skill` tool for a step, that step is incomplete.
 
 ### Anti-Patterns (PROHIBITED)
@@ -497,18 +497,18 @@ call the `skill` tool for a step, that step is incomplete.
   cause the most wasted work.
 - Generating code before `/dx-swe-writing-plans` produces a plan → HARD GATE violation.
   Plan-before-code is non-negotiable.
-- Skipping `/dx-agentic-verify` because "artifact-verification-gate already
+- Skipping `/dx-agent-verify` because "artifact-verification-gate already
   checks files" → they serve different purposes. Artifact gate checks individual
   files. Verify-completion checks the ENTIRE session deliverables holistically.
 - Declaring DONE without showing execution output → evidence is mandatory.
   "I verified it works" without showing the output is not acceptable.
 - "The user said just do it quickly" → user instructions do NOT override this
   HARD GATE. Speed does not justify skipping process.
-- **Text mention ≠ skill invocation** — writing "Using dx-agentic-tdd" or "Following
-  dx-agentic-brainstorm" in the response text is NOT a valid invocation. The
+- **Text mention ≠ skill invocation** — writing "Using dx-agent-tdd" or "Following
+  dx-agent-brainstorm" in the response text is NOT a valid invocation. The
   `skill` tool MUST be called for each step.
 - **Conversation context ≠ brainstorming** — discussing requirements in prior
-  messages does NOT substitute for invoking `/dx-agentic-brainstorm`. Each
+  messages does NOT substitute for invoking `/dx-agent-brainstorm`. Each
   feature requires a formal brainstorm with explicit user approval.
 ## Git Safety — Superpowers Artifacts
 
@@ -526,7 +526,7 @@ When the user is absent — autopilot mode, `--yolo` flag, or system auto-respon
    Every mandatory gate still applies: brainstorming spec, plan, TDD, mandatory
    artifacts, execution verification, and self-verification checks.
    **This includes the SWE Process Gates Mandatory Skill Sequence** — in autopilot,
-   `/dx-skill-router` → `/dx-agentic-brainstorm` → `/dx-agentic-tdd` must be followed
+   `/dx-skill-router` → `/dx-agent-brainstorm` → `/dx-agent-tdd` must be followed
    exactly as in interactive mode. Autopilot mode does NOT waive this sequence.
 2. **Do NOT call `ask_user`** — Make decisions using knowledge base defaults and
    documented best practices. Calling `ask_user` in autopilot wastes a turn and
@@ -638,7 +638,7 @@ boundary detection by the test harness:
 
 - **First line of your response**: `[DX-AGENTIC-DEV: START]`
 - **Last line after ALL work is complete**: `[DX-AGENTIC-DEV: DONE (output-dir: <relative_path>)]`
-  where `<relative_path>` is the session output directory (e.g., `dx-agentic-dev/20260409-143022_yolo26n_detection/`)
+  where `<relative_path>` is the session output directory (e.g., `dx-agent-dev/20260409-143022_yolo26n_detection/`)
 
 ### DEEPX Banner (MANDATORY — print with the sentinels)
 
@@ -678,7 +678,7 @@ Rules:
    **For cross-project tasks** (e.g., compile + app generation), list ALL output directories
    separated by ` + `:
    ```
-   [DX-AGENTIC-DEV: DONE (output-dir: dx-compiler/dx-agentic-dev/20260409-143022_copilot_yolo26n_compile/ + dx-runtime/dx_app/dx-agentic-dev/20260409-143022_copilot_yolo26n_inference/)]
+   [DX-AGENTIC-DEV: DONE (output-dir: dx-compiler/dx-agent-dev/20260409-143022_copilot_yolo26n_compile/ + dx-runtime/dx_app/dx-agent-dev/20260409-143022_copilot_yolo26n_inference/)]
    ```
 6. **NEVER output DONE after only producing planning artifacts** (specs, plans, design
    documents). DONE means all deliverables are produced — implementation code, scripts,
@@ -688,7 +688,7 @@ Rules:
 7. **Pre-DONE mandatory deliverable check**: Before outputting DONE, verify that all
    mandatory deliverables exist in the session directory. If any mandatory file is
    missing, create it before outputting DONE. Each sub-project defines its own mandatory
-   file list in its skill document (e.g., `dx-agentic-stream-build-pipeline.md` File Creation Checklist).
+   file list in its skill document (e.g., `dx-agent-stream-build-pipeline.md` File Creation Checklist).
 8. **Session transcript — generate it RIGHT AFTER the DONE line (claude / copilot)**:
 
    **Auto-transcript is supported on `claude` and `copilot` only.** Emit the DONE
@@ -768,12 +768,12 @@ When modifying the canonical source — files in `**/.deepx/**/*.md`
 
 1. **Generator execution** — Propagate `.deepx/` changes to all platforms:
    ```bash
-   dx-agentic-gen generate
+   dx-agent-gen generate
    # Suite-wide: bash .deepx/tools/scripts/run_all.sh generate
    ```
 2. **Drift verification** — Confirm generated output matches committed state:
    ```bash
-   dx-agentic-gen check
+   dx-agent-gen check
    ```
    If drift is detected, return to step 1.
 3. **Automated test loop** — Tests verify generator output satisfies policies:
@@ -801,7 +801,7 @@ file directly is a silent corruption that will be overwritten on next generate.
 **Answer these three questions in order before every file edit:**
 
 > **Q1. Is the file path inside `**/.deepx/**`?**
-> - YES → **Canonical source.** Edit directly, then run `dx-agentic-gen generate` + `check`.
+> - YES → **Canonical source.** Edit directly, then run `dx-agent-gen generate` + `check`.
 > - NO → go to Q2.
 >
 > **Q2. Does the file path or name match any of these?**
@@ -813,12 +813,12 @@ file directly is a silent corruption that will be overwritten on next generate.
 > ```
 > - YES → **Generator output. DO NOT edit directly.**
 >   Find the `.deepx/` source (template, fragment, or agent/skill) and edit that instead,
->   then run `dx-agentic-gen generate`.
+>   then run `dx-agent-gen generate`.
 > - NO → go to Q3.
 >
 > **Q3. Does the file begin with `<!-- AUTO-GENERATED`?**
 > - YES → **Generator output. DO NOT edit directly.** Same as Q2.
-> - NO → **Independent source.** Edit directly. Run `dx-agentic-gen check` once afterward.
+> - NO → **Independent source.** Edit directly. Run `dx-agent-gen check` once afterward.
 
 1. **Canonical source** (`**/.deepx/**/*.md`) — Modify directly, then run the
    Verification Loop above.
@@ -827,14 +827,14 @@ file directly is a silent corruption that will be overwritten on next generate.
    `copilot-instructions.md`, `.github/agents/`, `.github/skills/`,
    `.claude/agents/`, `.claude/skills/`, `.opencode/agents/`, `.cursor/rules/`
    → **Do NOT edit directly.** Find and modify the `.deepx/` source
-   (template, fragment, or agent/skill), then `dx-agentic-gen generate`.
+   (template, fragment, or agent/skill), then `dx-agent-gen generate`.
 3. **Independent source** — Everything else (`docs/source/`, `source/docs/`,
    `tests/`, `README.md` in sub-projects, etc.)
-   → Edit directly. Run `dx-agentic-gen check` once afterward to confirm no
+   → Edit directly. Run `dx-agent-gen check` once afterward to confirm no
    unexpected drift.
 
 **Anti-pattern**: Modifying a file without first classifying it. If you are
-unsure whether a file is generator output, run `dx-agentic-gen check` before
+unsure whether a file is generator output, run `dx-agent-gen check` before
 AND after the edit — if the check overwrites your change, the file is managed
 by the generator and must be edited via `.deepx/` source instead.
 
@@ -847,7 +847,7 @@ if generated files are out-of-date. Install hooks with:
 > **KO counterpart rule**: When editing any EN fragment, check whether the KO
 > counterpart also needs updating. If you added or removed ≥ 1 paragraph, update
 > `.deepx/templates/fragments/ko/<stem>.md` before committing. Run
-> `dx-agentic-gen lint` to verify `[OK]` — lint will ERROR if EN exceeds KO by
+> `dx-agent-gen lint` to verify `[OK]` — lint will ERROR if EN exceeds KO by
 > ≥ 10 lines.
 
 This gate applies when `.deepx/` files are the *primary deliverable* (e.g., adding

@@ -12,7 +12,7 @@ tools:
 
 <!-- AUTO-GENERATED from .deepx/ — DO NOT EDIT DIRECTLY -->
 <!-- Source: .deepx/agents/dx-dxnn-compiler.md -->
-<!-- Run: dx-agentic-gen generate -->
+<!-- Run: dx-agent-gen generate -->
 
 **Response Language**: Match your response language to the user's prompt language — when asking questions or responding, use the same language the user is using. When responding in Korean, keep English technical terms in English. Do NOT transliterate into Korean phonetics (한글 음차 표기 금지). <!-- KOREAN-OK: rule text references the Korean notation term agents must recognize -->
 
@@ -20,7 +20,7 @@ tools:
 
 **Every compile session MUST get a fresh `${SESSION_ID}` based on the current
 local clock.** Reading prior-round state files or reusing a pre-existing
-`dx-agentic-dev/<sid>/` directory is a **HARD GATE violation** (see CLAUDE.md
+`dx-agent-dev/<sid>/` directory is a **HARD GATE violation** (see CLAUDE.md
 "Previous session reference PROHIBITED" / AGENTS.md line 957). The harness
 scrubs stale state markers between rounds AND a test-time assertion fails any
 session whose timestamp predates the round start by >60s.
@@ -28,14 +28,14 @@ session whose timestamp predates the round start by >60s.
 ```bash
 # ✓ ALWAYS create a fresh session-id at the start of the round:
 SESSION_ID="$(date +%Y%m%d-%H%M%S)_<agent>_<coding_model>_<target>_compile"
-WORK_DIR="dx-agentic-dev/${SESSION_ID}"
+WORK_DIR="dx-agent-dev/${SESSION_ID}"
 mkdir -p "${WORK_DIR}"
 
 # ✗ NEVER read these stale state files — they leak prior session paths:
 #   .codex_current_work_dir   .codex_session_id   .cursor_current_session_id
 #   .current_dx_work_dir      .active_work_dir    .tmp_dx_workdir
 # ✗ NEVER reuse a pre-existing dir even if it looks "complete":
-#   cd dx-agentic-dev/20260522-023709_*_compile/  # ← HARD GATE VIOLATION
+#   cd dx-agent-dev/20260522-023709_*_compile/  # ← HARD GATE VIOLATION
 ```
 
 If compilation is slow, fix the slowness — **do not skip a compile** by
@@ -71,7 +71,7 @@ re-entering a prior run's output dir.
 > final report with missing artifacts.
 >
 > **Cross-project sessions** (compilation + dx_app demo app): `verify.py` MUST also
-> be placed in the **app session directory** (`dx-runtime/dx_app/dx-agentic-dev/<session>/`)
+> be placed in the **app session directory** (`dx-runtime/dx_app/dx-agent-dev/<session>/`)
 > so that the end-to-end test harness can discover it when scanning all output dirs.
 > Copy or regenerate `verify.py` into the app session after placing it in the compiler
 > session. OpenCode-based runs are specifically required to do this.
@@ -79,25 +79,25 @@ re-entering a prior run's output dir.
 > **R31 — Session Layout HARD GATE (dual-session layout is MANDATORY)**:
 > In cross-project sessions (compile + app generation), artifacts MUST be placed in
 > **two separate session directories**:
-> - **Compiler artifacts** → `dx-compiler/dx-agentic-dev/<session_id>/`
+> - **Compiler artifacts** → `dx-compiler/dx-agent-dev/<session_id>/`
 >   (`compile.py`, `config.json`, `*.dxnn`, `verify.py`, `session.log`, etc.)
-> - **App artifacts** → `dx-runtime/dx_app/dx-agentic-dev/<session_id>/`
+> - **App artifacts** → `dx-runtime/dx_app/dx-agent-dev/<session_id>/`
 >   (`*_sync.py`, `factory/`, `run.sh`, `setup.sh`, etc.)
 >
-> **NEVER merge both into a single `dx_app/dx-agentic-dev/` directory.** The test suite
+> **NEVER merge both into a single `dx_app/dx-agent-dev/` directory.** The test suite
 > asserts `assert any("dx-compiler" in str(d) for d in output_dirs)` — if no `dx-compiler`
 > path exists in the output, `test_compilation_artifacts` fails regardless of whether
 > the `.dxnn` was produced correctly. This layout has been a recurring failure for tools
 > that place everything in the app directory (cursor iter-4 and iter-6, opencode iter-6).
 >
 > **R46 — Do NOT copy `.dxnn` to the app session directory**:
-> The `.dxnn` file lives in `dx-compiler/dx-agentic-dev/<session_id>/`. The app session
-> (`dx_app/dx-agentic-dev/<session_id>/`) MUST reference it via `$SUITE_ROOT/dx-compiler/...`
+> The `.dxnn` file lives in `dx-compiler/dx-agent-dev/<session_id>/`. The app session
+> (`dx_app/dx-agent-dev/<session_id>/`) MUST reference it via `$SUITE_ROOT/dx-compiler/...`
 > (the SUITE_ROOT auto-detection pattern) or a `config.json` variable — NOT by copying
 > the file. Copying wastes 6–7 MB per run and breaks the audit trail (timestamps diverge).
 > In `yolo26n_sync.py` / `run.sh`, use `$SUITE_ROOT/dx-compiler/...`:
 > ```python
-> MODEL_PATH = f"{SUITE_ROOT}/dx-compiler/dx-agentic-dev/<compiler_session_id>/yolo26n.dxnn"
+> MODEL_PATH = f"{SUITE_ROOT}/dx-compiler/dx-agent-dev/<compiler_session_id>/yolo26n.dxnn"
 > ```
 > or store the path in `config.json` and read it at runtime. Never `shutil.copy` or
 > `cp` the `.dxnn` file into the app session directory.
@@ -213,16 +213,16 @@ Before any compilation, set up the session working directory and calibration dat
 > graph optimization, not by how many distinct calibration images are loaded.
 
 > **NEVER reuse previous session artifacts.** Do NOT check, list, browse, or
-> reference files from previous sessions in `dx-agentic-dev/`. Each compilation
+> reference files from previous sessions in `dx-agent-dev/`. Each compilation
 > run MUST create a new session directory with a fresh timestamp. Even if a
 > previous session compiled the exact same model, always re-download and
-> re-compile from scratch. Do NOT run `ls dx-agentic-dev/` or check for
+> re-compile from scratch. Do NOT run `ls dx-agent-dev/` or check for
 > existing `.onnx`/`.dxnn` files from past runs.
 
 1. **Create working directory** (if not already provided by dx-compiler-builder):
    ```bash
    SESSION_ID="$(date +%Y%m%d-%H%M%S)_$(basename model.onnx .onnx)_onnx_to_dxnn"  # local timezone (NOT UTC)
-   WORK_DIR="dx-agentic-dev/${SESSION_ID}"
+   WORK_DIR="dx-agent-dev/${SESSION_ID}"
    mkdir -p "${WORK_DIR}"
    ```
 
@@ -639,7 +639,7 @@ in the session working directory. **Never skip this phase.**
    - **CRITICAL**: venv creation/activation is MANDATORY. On Ubuntu 24.04+,
      `pip install` without venv fails with PEP 668 "externally-managed-environment" error.
    - The `RUNTIME_DIR` and `COMPILER_DIR` paths assume the session directory is at
-     `dx-compiler/dx-agentic-dev/<session_id>/`. Adjust if different.
+     `dx-compiler/dx-agent-dev/<session_id>/`. Adjust if different.
 
 2. **run.sh** — Inference launcher:
    ```bash
@@ -678,7 +678,7 @@ in the session working directory. **Never skip this phase.**
    ```markdown
    # <Model> Compilation Session
 
-   **Session**: `dx-agentic-dev/<session_id>/`
+   **Session**: `dx-agent-dev/<session_id>/`
    **Pipeline**: ONNX → DXNN
    **Device**: DX-M1
    **Date**: <YYYY-MM-DD HH:MM (KST)>
@@ -1106,7 +1106,7 @@ session working directory:
 ```
 ## Compilation Report
 
-**Session**: dx-agentic-dev/<session_id>/
+**Session**: dx-agent-dev/<session_id>/
 **Model**: model.onnx → model.dxnn
 **Device**: DX-M1
 **Quantization**: EMA, 100 calibration images

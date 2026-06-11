@@ -1,7 +1,7 @@
 # Coding Standards — dx-compiler
 
 > Standards for Python scripts, config files, and automation code
-> in the dx-compiler agentic infrastructure.
+> in the dx-compiler agent-driven infrastructure.
 
 ## Python Standards
 

@@ -1,6 +1,6 @@
 # Memory Index — dx-compiler
 
-> Persistent knowledge files for the dx-compiler agentic infrastructure.
+> Persistent knowledge files for the dx-compiler agent-driven infrastructure.
 > Read at the start of every session. Update when new patterns are discovered.
 
 ## Files

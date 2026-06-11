@@ -11,7 +11,7 @@
 | Situation | Path |
 |---|---|
 | Ultralytics YOLO **detection** model (`.pt`) → DeepX NPU | **`format=deepx` one-shot** (this doc) |
-| Non-detection task (seg/pose/cls/obb), or export currently unsupported | Manual PT→ONNX (`dx-agentic-compiler-convert`) → `dxcom` (`dxcom-cli.md`) |
+| Non-detection task (seg/pose/cls/obb), or export currently unsupported | Manual PT→ONNX (`dx-agent-compiler-convert`) → `dxcom` (`dxcom-cli.md`) |
 | Arbitrary / non-YOLO ONNX, custom graph, or fine control over config.json | Direct `dxcom` / `dx_com.compile()` (`dxcom-api.md`, `config-schema.md`) |
 | Already have a clean `.onnx` and just need `.dxnn` | Direct `dxcom` |
 
@@ -179,7 +179,7 @@ sufficient for standalone inference. See `dx-runtime/dx_app/CLAUDE.md`.
 - **Export fails on my ARM board.** Expected — run the export on an x86-64 Linux
   host. Only the export/compile step is x86-64-restricted.
 - **My model is segmentation/pose.** The one-shot path is detection-only for now;
-  fall back to manual PT→ONNX→`dxcom` (`dx-agentic-compiler-convert` + `dxcom-cli.md`).
+  fall back to manual PT→ONNX→`dxcom` (`dx-agent-compiler-convert` + `dxcom-cli.md`).
 - **Can I deploy custom-trained YOLO?** Yes — any detection model trained with
   Ultralytics Train Mode and exported with `format="deepx"` deploys on DX-M1.
 - **Deploy fails with `OSError: dx_engine is not installed … install dx_engine
@@ -192,4 +192,4 @@ sufficient for standalone inference. See `dx-runtime/dx_app/CLAUDE.md`.
 
 - Authoritative integration doc: `ultralytics/docs/en/integrations/deepx.md`
 - Direct compiler paths: `dxcom-cli.md`, `dxcom-api.md`, `config-schema.md`
-- Conversion fallback skill: `dx-agentic-compiler-convert`
+- Conversion fallback skill: `dx-agent-compiler-convert`

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-validate_framework.py — DEEPX dx-compiler Agentic Framework Validator
+validate_framework.py — DEEPX dx-compiler Agent-Driven Framework Validator
 
 Validates the .deepx/ directory structure, cross-references, domain tags,
 and agent routing consistency.
@@ -47,9 +47,9 @@ REQUIRED_AGENT_FILES = [
 ]
 
 REQUIRED_SKILL_FILES = [
-    "dx-agentic-compiler-convert.md",
-    "dx-agentic-compiler-compile.md",
-    "dx-agentic-compiler-validate.md",
+    "dx-agent-compiler-convert.md",
+    "dx-agent-compiler-compile.md",
+    "dx-agent-compiler-validate.md",
 ]
 
 REQUIRED_INSTRUCTION_FILES = [
@@ -443,7 +443,7 @@ def check_memory_domain_tags(deepx_dir: Path, report: FrameworkReport) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Validate DEEPX dx-compiler agentic framework (.deepx/ directory)",
+        description="Validate DEEPX dx-compiler agent-driven framework (.deepx/ directory)",
     )
     parser.add_argument(
         "--json",

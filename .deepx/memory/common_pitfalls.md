@@ -172,11 +172,11 @@ a different directory, the path breaks.
 - Always use relative paths in config.json: `"dataset_path": "./calibration_dataset"`
 - Create a symlink in the working directory pointing to the actual data:
   ```bash
-  ln -sf ../../dx_com/calibration_dataset dx-agentic-dev/<session_id>/calibration_dataset
+  ln -sf ../../dx_com/calibration_dataset dx-agent-dev/<session_id>/calibration_dataset
   ```
 - Run `dxcom` from the working directory so the relative path resolves correctly:
   ```bash
-  cd dx-agentic-dev/<session_id>/
+  cd dx-agent-dev/<session_id>/
   dxcom -m model.onnx -c config.json -o ./
   ```
 - The calibration data chain: `working_dir/calibration_dataset` → `dx_com/calibration_dataset/`
@@ -192,14 +192,14 @@ are spread across multiple directories. Difficult to find or reproduce results.
 current directory, various `output/` paths, or project root.
 
 **Fix**:
-- Always create a session working directory: `dx-agentic-dev/<session_id>/`
+- Always create a session working directory: `dx-agent-dev/<session_id>/`
 - Session ID format: `YYYYMMDD-HHMMSS_<agent>_<model>_<task>` (local timezone)
 - Save ALL artifacts (ONNX, config.json, .dxnn, compiler.log) to this directory
 - At the end, generate a report listing all files with sizes
 - Example:
   ```bash
   SESSION_ID="$(date +%Y%m%d-%H%M%S)_yolo26x_pt_to_dxnn"  # local timezone (NOT UTC)
-  WORK_DIR="dx-agentic-dev/${SESSION_ID}"
+  WORK_DIR="dx-agent-dev/${SESSION_ID}"
   mkdir -p "${WORK_DIR}"
    # All subsequent operations use ${WORK_DIR}/
    ```
@@ -510,13 +510,13 @@ architecture with output `[1, 300, 6]`).
 
 ## 15. [UNIVERSAL] Never Reuse Previous Session Artifacts
 
-**Symptom**: Agent checks `dx-agentic-dev/` for existing sessions, finds a
+**Symptom**: Agent checks `dx-agent-dev/` for existing sessions, finds a
 previous run with the same model (e.g., `20260408-113623_yolo26n_onnx_to_dxnn`),
 and skips the model download/export step by reusing the existing `.onnx` file.
 The user expects a fresh end-to-end run but gets a partial one.
 
 **Cause**: The agent tries to be "efficient" by avoiding redundant work. It runs
-`ls dx-agentic-dev/` or similar commands to scan for prior sessions, detects an
+`ls dx-agent-dev/` or similar commands to scan for prior sessions, detects an
 existing ONNX or DXNN file, and decides to reuse it instead of re-downloading
 and re-exporting.
 
@@ -531,7 +531,7 @@ and re-exporting.
    pipeline from scratch, not a shortcut.
 
 **Fix**:
-- **NEVER** run `ls dx-agentic-dev/`, `find dx-agentic-dev/`, or any command
+- **NEVER** run `ls dx-agent-dev/`, `find dx-agent-dev/`, or any command
   that checks for existing sessions or artifacts from previous runs
 - **ALWAYS** create a new session directory with a fresh `$(date +%Y%m%d-%H%M%S)` (local timezone)
   timestamp
@@ -616,7 +616,7 @@ fi
 - Reference PASS, Generated FAIL → compilation problem (fix config, quantization)
 - Both PASS → compilation correct
 
-See `dx-dxnn-compiler.md` Phase 5.7 and `dx-agentic-compiler-validate.md` Phase 3.5.
+See `dx-dxnn-compiler.md` Phase 5.7 and `dx-agent-compiler-validate.md` Phase 3.5.
 
 ---
 

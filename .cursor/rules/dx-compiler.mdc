@@ -39,7 +39,7 @@ When a compilation task is received, classify and route:
 5. Calibration images must be representative of real inference data
 6. PPU type 0 = anchor-based (YOLOv3/v4/v5/v7), type 1 = anchor-free (YOLOX/YOLOv8-v12)
 7. Always use `--gen_log` during development for debugging
-8. Output to `dx-agentic-dev/<session_id>/` to isolate compilation artifacts
+8. Output to `dx-agent-dev/<session_id>/` to isolate compilation artifacts
 9. Use relative paths for calibration: `"dataset_path": "./calibration_dataset"`
 10. Symlink calibration data into working directory before compilation
 11. Do NOT run `onnx-simplifier` unless the user explicitly requests it

@@ -1,6 +1,6 @@
-# .deepx/ — dx-compiler Agentic Knowledge
+# .deepx/ — dx-compiler Agent-Driven Knowledge
 
-> Agentic infrastructure for the DEEPX DXNN Compiler (DX-COM v2.2.1).
+> Agent-Driven infrastructure for the DEEPX DXNN Compiler (DX-COM v2.2.1).
 > Enables AI coding agents to automate ONNX → DXNN model compilation workflows
 > targeting DEEPX NPU hardware (DX-M1).
 
@@ -14,9 +14,9 @@
 │   ├── dx-model-converter.md          ← PT → ONNX conversion agent
 │   └── dx-dxnn-compiler.md            ← ONNX → DXNN compilation agent
 ├── skills/
-│   ├── dx-agentic-compiler-convert.md            ← /dx-agentic-compiler-convert skill
-│   ├── dx-agentic-compiler-compile.md            ← /dx-agentic-compiler-compile skill
-│   ├── dx-agentic-compiler-validate.md         ← /dx-agentic-compiler-validate skill
+│   ├── dx-agent-compiler-convert.md            ← /dx-agent-compiler-convert skill
+│   ├── dx-agent-compiler-compile.md            ← /dx-agent-compiler-compile skill
+│   ├── dx-agent-compiler-validate.md         ← /dx-agent-compiler-validate skill
 │   ├── dx-brainstorm-and-plan.md      ← Process skill
 │   ├── dx-tdd.md                      ← Process skill
 │   └── dx-verify-completion.md        ← Process skill
@@ -61,9 +61,9 @@
 
 | Skill | File | Trigger |
 |---|---|---|
-| /dx-agentic-compiler-convert | `skills/dx-agentic-compiler-convert.md` | "convert", "export", "PT to ONNX" |
-| /dx-agentic-compiler-compile | `skills/dx-agentic-compiler-compile.md` | "compile", "ONNX to DXNN", "quantize" |
-| /dx-agentic-compiler-validate | `skills/dx-agentic-compiler-validate.md` | "validate", "verify", "check output" |
+| /dx-agent-compiler-convert | `skills/dx-agent-compiler-convert.md` | "convert", "export", "PT to ONNX" |
+| /dx-agent-compiler-compile | `skills/dx-agent-compiler-compile.md` | "compile", "ONNX to DXNN", "quantize" |
+| /dx-agent-compiler-validate | `skills/dx-agent-compiler-validate.md` | "validate", "verify", "check output" |
 | /dx-brainstorm-and-plan | `skills/dx-brainstorm-and-plan.md` | "brainstorm", "plan", "design" (process skill) |
 | /dx-tdd | `skills/dx-tdd.md` | "TDD", "validation", "incremental" (process skill) |
 | /dx-verify-completion | `skills/dx-verify-completion.md` | "completion", "verify", "evidence" (process skill) |
@@ -85,13 +85,13 @@
 
 | If the task mentions... | Read these files |
 |---|---|
-| **PyTorch, PT, export, convert** | `agents/dx-model-converter.md`, `skills/dx-agentic-compiler-convert.md` |
-| **ONNX, compile, DXNN, quantize** | `agents/dx-dxnn-compiler.md`, `skills/dx-agentic-compiler-compile.md`, `toolsets/dxcom-api.md` |
+| **PyTorch, PT, export, convert** | `agents/dx-model-converter.md`, `skills/dx-agent-compiler-convert.md` |
+| **ONNX, compile, DXNN, quantize** | `agents/dx-dxnn-compiler.md`, `skills/dx-agent-compiler-compile.md`, `toolsets/dxcom-api.md` |
 | **CLI, command line, dxcom** | `toolsets/dxcom-cli.md` |
 | **config, JSON, schema** | `toolsets/config-schema.md` |
 | **calibration, quantization, INT8** | `instructions/compilation-workflow.md`, `toolsets/config-schema.md` |
 | **PPU, YOLO, detection** | `toolsets/config-schema.md`, `instructions/compilation-workflow.md` |
-| **validate, verify, check** | `skills/dx-agentic-compiler-validate.md` |
+| **validate, verify, check** | `skills/dx-agent-compiler-validate.md` |
 | **error, fail, bug** | `memory/common_pitfalls.md` |
 | **Brainstorm, plan, design** | `skills/dx-brainstorm-and-plan.md` |
 | **TDD, validation, incremental** | `skills/dx-tdd.md` |
@@ -104,10 +104,10 @@
 1. Read AGENTS.md or CLAUDE.md          ← Entry point
 2. Router classifies task               ← dx-compiler-builder
 3. Route to sub-agent                   ← dx-model-converter OR dx-dxnn-compiler
-4. Sub-agent loads skill                ← /dx-agentic-compiler-convert OR /dx-agentic-compiler-compile
+4. Sub-agent loads skill                ← /dx-agent-compiler-convert OR /dx-agent-compiler-compile
 5. Skill references toolsets            ← dxcom-api, dxcom-cli, config-schema
 6. Check memory for pitfalls            ← common_pitfalls.md
-7. Execute with validation gates        ← /dx-agentic-compiler-validate
+7. Execute with validation gates        ← /dx-agent-compiler-validate
 8. Update memory if new patterns found  ← MEMORY.md protocol
 ```
 

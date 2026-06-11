@@ -10,7 +10,7 @@ PyTorch Model (.pt/.pth)
     │
     ▼
 [Phase 0: Prepare Working Directory]
-    │  mkdir dx-agentic-dev/<session_id>/
+    │  mkdir dx-agent-dev/<session_id>/
     │  ln -sf calibration_dataset
     ▼
 [Phase 1: Export to ONNX]
@@ -135,7 +135,7 @@ Before compilation, ensure calibration data is available and properly linked:
    which downloads from `https://sdk.deepx.ai/` and extracts to `dx_com/calibration_dataset/`
 3. **Working directory symlink**: Create a symlink in the session directory:
    ```bash
-   ln -sf ../../dx_com/calibration_dataset dx-agentic-dev/<session_id>/calibration_dataset
+   ln -sf ../../dx_com/calibration_dataset dx-agent-dev/<session_id>/calibration_dataset
    ```
 4. **Relative path in config.json**: Always use `"dataset_path": "./calibration_dataset"`
    in config.json. This relative path resolves from the working directory where `dxcom`
@@ -143,7 +143,7 @@ Before compilation, ensure calibration data is available and properly linked:
 
 ### Calibration Path Chain
 ```
-dx-agentic-dev/<session_id>/calibration_dataset  (symlink)
+dx-agent-dev/<session_id>/calibration_dataset  (symlink)
     → ../../dx_com/calibration_dataset/           (actual data: 100 JPEG)
 ```
 

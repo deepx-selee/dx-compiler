@@ -3,7 +3,7 @@ download/
 dx_com
 dx_tron
 venv-dx-compiler-local/
-dx-agentic-dev/
+dx-agent-dev/
 docs/superpowers/
 calibration_images/
 # Model files (downloaded by agents)

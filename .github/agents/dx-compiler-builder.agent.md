@@ -35,7 +35,7 @@ handoffs:
 
 <!-- AUTO-GENERATED from .deepx/ — DO NOT EDIT DIRECTLY -->
 <!-- Source: .deepx/agents/dx-compiler-builder.md -->
-<!-- Run: dx-agentic-gen generate -->
+<!-- Run: dx-agent-gen generate -->
 
 **Response Language**: Match your response language to the user's prompt language — when asking questions or responding, use the same language the user is using. When responding in Korean, keep English technical terms in English. Do NOT transliterate into Korean phonetics (한글 음차 표기 금지). <!-- KOREAN-OK: rule text references the Korean notation term agents must recognize -->
 
@@ -60,7 +60,7 @@ Before classifying or routing any task:
 ## MANDATORY OUTPUT REQUIREMENTS — READ FIRST
 
 > **BEFORE starting any work**, memorize these required artifacts. Every compilation
-> session MUST produce ALL of these files in `dx-agentic-dev/<session_id>/`.
+> session MUST produce ALL of these files in `dx-agent-dev/<session_id>/`.
 > If ANY are missing when you finish, the session is INCOMPLETE.
 
 | # | Artifact | Required | Purpose |
@@ -452,15 +452,15 @@ For full pipeline, route sequentially:
 
 ## Output Isolation
 
-All compilation artifacts MUST go to `dx-agentic-dev/<session_id>/` within the
+All compilation artifacts MUST go to `dx-agent-dev/<session_id>/` within the
 dx-compiler directory. This prevents accidental overwrites and keeps each run
 self-contained.
 
 > **NEVER reuse previous session artifacts.** Do NOT check, list, browse, or
-> reference files from previous sessions in `dx-agentic-dev/`. Each compilation
+> reference files from previous sessions in `dx-agent-dev/`. Each compilation
 > run MUST create a new session directory with a fresh timestamp. Even if a
 > previous session compiled the exact same model, always re-download, re-export,
-> and re-compile from scratch. Do NOT run `ls dx-agentic-dev/` or check for
+> and re-compile from scratch. Do NOT run `ls dx-agent-dev/` or check for
 > existing `.onnx`/`.dxnn` files from past runs.
 
 **Session ID format**: `YYYYMMDD-HHMMSS_<agent>_<model>_<task>` (local timezone)
@@ -471,7 +471,7 @@ Examples:
 
 **Working directory structure**:
 ```
-dx-compiler/dx-agentic-dev/<session_id>/
+dx-compiler/dx-agent-dev/<session_id>/
 ├── calibration_dataset   → symlink to dx_com/calibration_dataset/
 ├── config.json           (generated)
 ├── model.onnx            (input or converted)
@@ -623,7 +623,7 @@ If a field is empty, the compilation is NOT complete.
 └───────────────┴────────────────────────────────────────┘
 
 Output Location:
-  dx-agentic-dev/{session_id}/
+  dx-agent-dev/{session_id}/
   ├── {model}.onnx
   ├── {model}.dxnn
   ├── config.json
@@ -637,11 +637,11 @@ Output Location:
 
 When routing to sub-agents, pass the session working directory:
 ```
-@dx-model-converter Convert {model_path} to ONNX, output to dx-agentic-dev/{session_id}/
+@dx-model-converter Convert {model_path} to ONNX, output to dx-agent-dev/{session_id}/
 ```
 
 ```
-@dx-dxnn-compiler Compile {onnx_path} to DXNN in dx-agentic-dev/{session_id}/
+@dx-dxnn-compiler Compile {onnx_path} to DXNN in dx-agent-dev/{session_id}/
 ```
 
 ## Calibration Dataset Management
@@ -656,7 +656,7 @@ Before routing to dx-dxnn-compiler, ensure calibration data is available using
 3. **Auto-download**: If neither exists, run `example/2-download_sample_calibration_dataset.sh`
 4. Create a symlink in the session working directory:
    ```bash
-   ln -sf ../../dx_com/calibration_dataset dx-agentic-dev/<session_id>/calibration_dataset
+   ln -sf ../../dx_com/calibration_dataset dx-agent-dev/<session_id>/calibration_dataset
    ```
 5. Instruct dx-dxnn-compiler to use relative path `./calibration_dataset` in config.json
 

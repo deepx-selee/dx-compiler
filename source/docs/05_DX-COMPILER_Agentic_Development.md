@@ -1,6 +1,6 @@
-# DEEPX Agentic Development for DX-COM - dx-agentic-dev (Beta)
+# DEEPX Agent-Driven Development for DX-COM - dx-agent-dev (Beta)
 
-> **Beta Feature** — Agentic development support is under active development.
+> **Beta Feature** — Agent-Driven development support is under active development.
 > Skill definitions and routing behavior may change between releases.
 
 ## Introduction
@@ -28,7 +28,7 @@ Supported workflows include:
 
 ## Architecture Overview
 
-The agentic knowledge base for dx-compiler is organized in a single `.deepx/` directory
+The agent-driven knowledge base for dx-compiler is organized in a single `.deepx/` directory
 containing agents, skills, instructions, toolsets, and memory files that the agent reads
 at task time.
 
@@ -87,13 +87,13 @@ PyTorch (.pt)          ONNX (.onnx)                    DXNN (.dxnn)
 
 | Skill | Description |
 |-------|-------------|
-| `/dx-agentic-compiler-compile` | Step-by-step ONNX to DXNN compilation workflow |
-| `/dx-agentic-compiler-convert` | Step-by-step PyTorch to ONNX conversion workflow |
-| `/dx-agentic-compiler-validate` | Validate compiled .dxnn model output |
+| `/dx-agent-compiler-compile` | Step-by-step ONNX to DXNN compilation workflow |
+| `/dx-agent-compiler-convert` | Step-by-step PyTorch to ONNX conversion workflow |
+| `/dx-agent-compiler-validate` | Validate compiled .dxnn model output |
 
 ## Supported AI Tools
 
-Agentic development works with four AI coding tools. Each tool auto-loads
+Agent-Driven development works with four AI coding tools. Each tool auto-loads
 the `.deepx/` knowledge base through its own configuration mechanism.
 
 | Tool | Type | Auto-Load Mechanism | Agent Invocation |
@@ -101,7 +101,7 @@ the `.deepx/` knowledge base through its own configuration mechanism.
 | **Claude Code** | CLI | `CLAUDE.md` at project root | Free-form conversation; Context Routing Table dispatches automatically |
 | **GitHub Copilot** | VS Code | `.github/copilot-instructions.md` | `@dx-compiler-builder "prompt"` in Copilot Chat |
 | **Cursor** | IDE | `.cursor/rules/` (19 files: `dx-compiler.mdc`, 3 agent `.mdc` files, 15 `skill-*.mdc` files) | Free-form conversation; rules loaded by `alwaysApply` |
-| **OpenCode** | CLI | `AGENTS.md` + `opencode.json` | `@dx-compiler-builder "prompt"` or `/dx-agentic-compiler-compile` |
+| **OpenCode** | CLI | `AGENTS.md` + `opencode.json` | `@dx-compiler-builder "prompt"` or `/dx-agent-compiler-compile` |
 
 ### First-Time Setup
 
@@ -158,8 +158,8 @@ Skills exist across all platforms:
 | Skill | File |
 |-------|------|
 | `/dx-swe-brainstorm` | `.deepx/skills/dx-swe-brainstorm/SKILL.md` |
-| `/dx-agentic-compiler-compile` | `.deepx/skills/dx-agentic-compiler-compile/SKILL.md` |
-| `/dx-agentic-compiler-convert` | `.deepx/skills/dx-agentic-compiler-convert/SKILL.md` |
+| `/dx-agent-compiler-compile` | `.deepx/skills/dx-agent-compiler-compile/SKILL.md` |
+| `/dx-agent-compiler-convert` | `.deepx/skills/dx-agent-compiler-convert/SKILL.md` |
 | `/dx-swe-parallel-agents` | `.deepx/skills/dx-swe-parallel-agents/SKILL.md` |
 | `/dx-swe-executing-plans` | `.deepx/skills/dx-swe-executing-plans/SKILL.md` |
 | `/dx-swe-receiving-review` | `.deepx/skills/dx-swe-receiving-review/SKILL.md` |
@@ -168,17 +168,17 @@ Skills exist across all platforms:
 | `/dx-swe-subagent-dev` | `.deepx/skills/dx-swe-subagent-dev/SKILL.md` |
 | `/dx-swe-debugging` | `.deepx/skills/dx-swe-debugging/SKILL.md` |
 | `/dx-swe-tdd` | `.deepx/skills/dx-swe-tdd/SKILL.md` |
-| `/dx-agentic-compiler-validate` | `.deepx/skills/dx-agentic-compiler-validate/SKILL.md` |
+| `/dx-agent-compiler-validate` | `.deepx/skills/dx-agent-compiler-validate/SKILL.md` |
 | `/dx-swe-verify` | `.deepx/skills/dx-swe-verify/SKILL.md` |
 | `/dx-swe-writing-plans` | `.deepx/skills/dx-swe-writing-plans/SKILL.md` |
 
 #### Shared Knowledge Base (`.deepx/`)
 
-The `.deepx/` directory is the **canonical source** for all platform-specific files. The `dx-agentic-gen` generator transforms agents, skills, and templates into platform-specific files for Copilot (`.github/`), Claude Code (`.claude/`), OpenCode (`.opencode/`), and Cursor (`.cursor/rules/`). Runtime knowledge files (memory, instructions, toolsets) are read on demand by agents during task execution.
+The `.deepx/` directory is the **canonical source** for all platform-specific files. The `dx-agent-gen` generator transforms agents, skills, and templates into platform-specific files for Copilot (`.github/`), Claude Code (`.claude/`), OpenCode (`.opencode/`), and Cursor (`.cursor/rules/`). Runtime knowledge files (memory, instructions, toolsets) are read on demand by agents during task execution.
 
 | Directory | Files | Description |
 |-----------|-------|-------------|
-| `.deepx/agents/` | `dx-compiler-builder.md`, `dx-dxnn-compiler.md`, `dx-model-converter.md` | Authoritative agent definitions — `dx-agentic-gen` generates platform copies to `.github/agents/`, `.claude/agents/`, `.opencode/agents/`, and `.cursor/rules/` |
+| `.deepx/agents/` | `dx-compiler-builder.md`, `dx-dxnn-compiler.md`, `dx-model-converter.md` | Authoritative agent definitions — `dx-agent-gen` generates platform copies to `.github/agents/`, `.claude/agents/`, `.opencode/agents/`, and `.cursor/rules/` |
 | `.deepx/templates/` | `{en,ko}/*.tmpl` | Instruction file templates (fragments via parent traversal to suite root) |
 | `.deepx/toolsets/` | `dxcom-api.md`, `dxcom-cli.md`, `config-schema.md` | API and CLI reference |
 | `.deepx/instructions/` | `coding-standards.md`, `compilation-workflow.md` | Coding conventions and workflow rules |
@@ -186,10 +186,10 @@ The `.deepx/` directory is the **canonical source** for all platform-specific fi
 
 #### Generation Pipeline
 
-All platform-specific files (`.github/`, `.claude/`, `.opencode/`, `.cursor/rules/`) are generated from `.deepx/` by `dx-agentic-gen`:
+All platform-specific files (`.github/`, `.claude/`, `.opencode/`, `.cursor/rules/`) are generated from `.deepx/` by `dx-agent-gen`:
 
 ```bash
-dx-agentic-gen generate --repo dx-compiler
+dx-agent-gen generate --repo dx-compiler
 ```
 
 A pre-commit hook enforces no drift between `.deepx/` sources and generated platform files. **Platform files should never be edited directly** — always edit the canonical `.deepx/` source and re-run the generator.
@@ -244,7 +244,7 @@ anchor-based YOLOv3–v7, type 1 for anchor-free YOLOv8+).
 | **Claude Code** | Open `dx-compiler/` and type the prompt directly. |
 | **GitHub Copilot** | `@dx-model-converter` followed by the prompt. |
 | **Cursor** | Open `dx-compiler/` and type the prompt. |
-| **OpenCode** | `/dx-agentic-compiler-convert` or `@dx-model-converter` followed by the prompt. |
+| **OpenCode** | `/dx-agent-compiler-convert` or `@dx-model-converter` followed by the prompt. |
 
 ### Scenario 2: Compile ONNX to DXNN
 
@@ -259,7 +259,7 @@ anchor-based YOLOv3–v7, type 1 for anchor-free YOLOv8+).
 | **Claude Code** | Open `dx-compiler/` and type the prompt directly. |
 | **GitHub Copilot** | `@dx-dxnn-compiler` followed by the prompt. |
 | **Cursor** | Open `dx-compiler/` and type the prompt. |
-| **OpenCode** | `/dx-agentic-compiler-compile` or `@dx-dxnn-compiler` followed by the prompt. |
+| **OpenCode** | `/dx-agent-compiler-compile` or `@dx-dxnn-compiler` followed by the prompt. |
 
 ### Scenario 3: Full Pipeline PT → DXNN
 
@@ -291,19 +291,19 @@ When you provide a model and calibration data, the agent automatically infers:
 
 ## Output Isolation
 
-All compilation artifacts go to `dx-agentic-dev/<session_id>/` by default.
+All compilation artifacts go to `dx-agent-dev/<session_id>/` by default.
 This keeps each compilation session self-contained and reproducible.
 
 **Session ID format**: `YYYYMMDD-HHMMSS_<agent>_<model>_<task>` where `<agent>` is `claude`, `codex`, `copilot`, `cursor`, or `opencode`
 
 | Output Type | Path | When |
 |---|---|---|
-| **Default (isolated)** | `dx-agentic-dev/<session_id>/` | Always, unless user says otherwise |
+| **Default (isolated)** | `dx-agent-dev/<session_id>/` | Always, unless user says otherwise |
 | **Custom** | User-specified path via `-o` | When explicitly requested |
 
 **Working directory contents** after compilation:
 ```
-dx-agentic-dev/<session_id>/
+dx-agent-dev/<session_id>/
 ├── calibration_dataset   → ../../dx_com/calibration_dataset/ (symlink)
 ├── config.json           (auto-generated)
 ├── model.onnx            (input or converted)

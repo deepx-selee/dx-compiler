@@ -1,6 +1,6 @@
-# .deepx/ — dx-compiler Agentic Knowledge
+# .deepx/ — dx-compiler Agent-Driven Knowledge
 
-> DEEPX DXNN Compiler (DX-COM)를 위한 Agentic 인프라.
+> DEEPX DXNN Compiler (DX-COM)를 위한 Agent-Driven 인프라.
 > AI 코딩 에이전트가 DEEPX NPU 하드웨어(DX-M1)를 대상으로
 > ONNX → DXNN 모델 컴파일 워크플로를 자동화할 수 있도록 합니다.
 
@@ -14,9 +14,9 @@
 │   ├── dx-model-converter.md          ← PT → ONNX 변환 에이전트
 │   └── dx-dxnn-compiler.md            ← ONNX → DXNN 컴파일 에이전트
 ├── skills/
-│   ├── dx-agentic-compiler-convert.md            ← /dx-agentic-compiler-convert skill
-│   ├── dx-agentic-compiler-compile.md            ← /dx-agentic-compiler-compile skill
-│   ├── dx-agentic-compiler-validate.md         ← /dx-agentic-compiler-validate skill
+│   ├── dx-agent-compiler-convert.md            ← /dx-agent-compiler-convert skill
+│   ├── dx-agent-compiler-compile.md            ← /dx-agent-compiler-compile skill
+│   ├── dx-agent-compiler-validate.md         ← /dx-agent-compiler-validate skill
 │   ├── dx-brainstorm-and-plan.md      ← Process skill
 │   ├── dx-tdd.md                      ← Process skill
 │   └── dx-verify-completion.md        ← Process skill
@@ -61,9 +61,9 @@
 
 | Skill | File | 트리거 |
 |---|---|---|
-| /dx-agentic-compiler-convert | `skills/dx-agentic-compiler-convert.md` | "convert", "export", "PT to ONNX" |
-| /dx-agentic-compiler-compile | `skills/dx-agentic-compiler-compile.md` | "compile", "ONNX to DXNN", "quantize" |
-| /dx-agentic-compiler-validate | `skills/dx-agentic-compiler-validate.md` | "validate", "verify", "check output" |
+| /dx-agent-compiler-convert | `skills/dx-agent-compiler-convert.md` | "convert", "export", "PT to ONNX" |
+| /dx-agent-compiler-compile | `skills/dx-agent-compiler-compile.md` | "compile", "ONNX to DXNN", "quantize" |
+| /dx-agent-compiler-validate | `skills/dx-agent-compiler-validate.md` | "validate", "verify", "check output" |
 | /dx-brainstorm-and-plan | `skills/dx-brainstorm-and-plan.md` | "brainstorm", "plan", "design" (process skill) |
 | /dx-tdd | `skills/dx-tdd.md` | "TDD", "validation", "incremental" (process skill) |
 | /dx-verify-completion | `skills/dx-verify-completion.md` | "completion", "verify", "evidence" (process skill) |
@@ -85,13 +85,13 @@
 
 | 작업에 다음이 언급되면... | 다음 파일을 읽으세요 |
 |---|---|
-| **PyTorch, PT, export, convert** | `agents/dx-model-converter.md`, `skills/dx-agentic-compiler-convert.md` |
-| **ONNX, compile, DXNN, quantize** | `agents/dx-dxnn-compiler.md`, `skills/dx-agentic-compiler-compile.md`, `toolsets/dxcom-api.md` |
+| **PyTorch, PT, export, convert** | `agents/dx-model-converter.md`, `skills/dx-agent-compiler-convert.md` |
+| **ONNX, compile, DXNN, quantize** | `agents/dx-dxnn-compiler.md`, `skills/dx-agent-compiler-compile.md`, `toolsets/dxcom-api.md` |
 | **CLI, command line, dxcom** | `toolsets/dxcom-cli.md` |
 | **config, JSON, schema** | `toolsets/config-schema.md` |
 | **calibration, quantization, INT8** | `instructions/compilation-workflow.md`, `toolsets/config-schema.md` |
 | **PPU, YOLO, detection** | `toolsets/config-schema.md`, `instructions/compilation-workflow.md` |
-| **validate, verify, check** | `skills/dx-agentic-compiler-validate.md` |
+| **validate, verify, check** | `skills/dx-agent-compiler-validate.md` |
 | **error, fail, bug** | `memory/common_pitfalls.md` |
 | **Brainstorm, plan, design** | `skills/dx-brainstorm-and-plan.md` |
 | **TDD, validation, incremental** | `skills/dx-tdd.md` |
@@ -104,10 +104,10 @@
 1. AGENTS.md 또는 CLAUDE.md 읽기            ← 진입점
 2. 라우터가 작업 분류                        ← dx-compiler-builder
 3. 서브 에이전트로 라우팅                    ← dx-model-converter 또는 dx-dxnn-compiler
-4. 서브 에이전트가 skill 로드                ← /dx-agentic-compiler-convert 또는 /dx-agentic-compiler-compile
+4. 서브 에이전트가 skill 로드                ← /dx-agent-compiler-convert 또는 /dx-agent-compiler-compile
 5. Skill이 toolsets 참조                     ← dxcom-api, dxcom-cli, config-schema
 6. Pitfalls를 위한 memory 확인               ← common_pitfalls.md
-7. 검증 게이트와 함께 실행                   ← /dx-agentic-compiler-validate
+7. 검증 게이트와 함께 실행                   ← /dx-agent-compiler-validate
 8. 새 패턴 발견 시 memory 업데이트           ← MEMORY.md 프로토콜
 ```
 
