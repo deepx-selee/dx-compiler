@@ -35,7 +35,7 @@
 
 **Claude:**
 
-[DX-AGENTIC-DEV: START]
+[DX-AGENT-DEV: START]
 
 ```
  ███████████   █████████ ████████ ████████  ████      ████
@@ -46,7 +46,7 @@
  ███     █████░███░      ██░      ███░   ████████░░░░████
  ███████████░░░█████████ ████████ ██████████░░░░░░    ████
   ░░░░░░░░░░░   ░░░░░░░░░ ░░░░░░░░ ░░░░░░░░░░          ░░░░
-        DX-AGENTIC-DEV · on-device NPU
+        DX-AGENT-DEV · on-device NPU
 ```
 
 I'll begin by invoking the mandatory skill router as required by the project HARD GATE.
@@ -493,10 +493,10 @@ All gates passed and every artifact is produced and verified. Summary of the com
  ███     █████░███░      ██░      ███░   ████████░░░░████
  ███████████░░░█████████ ████████ ██████████░░░░░░    ████
   ░░░░░░░░░░░   ░░░░░░░░░ ░░░░░░░░ ░░░░░░░░░░          ░░░░
-        DX-AGENTIC-DEV · on-device NPU
+        DX-AGENT-DEV · on-device NPU
 ```
 
-[DX-AGENTIC-DEV: DONE (output-dir: dx-compiler/dx-agent-dev/20260611-103742_claude_opus48_yolo26n_pill_retrain/)]
+[DX-AGENT-DEV: DONE (output-dir: dx-compiler/dx-agent-dev/20260611-103742_claude_opus48_yolo26n_pill_retrain/)]
 
 Now rendering the session transcript into the output dir (final housekeeping step).
 

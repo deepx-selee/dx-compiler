@@ -960,7 +960,7 @@ subprocess.
 > **Step 2 — Verify .dxnn exists** (Python check):
 
 ```python
-# Mandatory pre-DONE check — run this BEFORE emitting [DX-AGENTIC-DEV: DONE]
+# Mandatory pre-DONE check — run this BEFORE emitting [DX-AGENT-DEV: DONE]
 import os, time
 from pathlib import Path
 
@@ -994,7 +994,7 @@ print(f"Pre-DONE check PASSED: {dxnn} exists ({dxnn.stat().st_size} bytes)")
 2. Fix the error (wrong config, HWC/NCHW mismatch, etc.) and re-run `compile.py`.
 3. Do NOT emit DONE until `.dxnn` exists.
 
-> **NEVER emit `[DX-AGENTIC-DEV: DONE]` without a `.dxnn` file in the session directory.**
+> **NEVER emit `[DX-AGENT-DEV: DONE]` without a `.dxnn` file in the session directory.**
 > Doing so causes the E2E test suite to fail with `test_dxnn_compiled: No .dxnn files found`.
 > The background compilation finishing AFTER DONE does NOT satisfy the gate — the test
 > collects files at DONE time, not 3 minutes later.

@@ -35,7 +35,7 @@
 
 **Claude:**
 
-`[DX-AGENTIC-DEV: START]`
+`[DX-AGENT-DEV: START]`
 
 ```
  ███████████   █████████ ████████ ████████  ████      ████
@@ -46,7 +46,7 @@
  ███     █████░███░      ██░      ███░   ████████░░░░████
  ███████████░░░█████████ ████████ ██████████░░░░░░    ████
   ░░░░░░░░░░░   ░░░░░░░░░ ░░░░░░░░ ░░░░░░░░░░          ░░░░
-        DX-AGENTIC-DEV · on-device NPU
+        DX-AGENT-DEV · on-device NPU
 ```
 
 I'll start by invoking the mandatory skill router as the absolute first action.
@@ -377,10 +377,10 @@ All mandatory dx-compiler deliverables are present: `setup.sh`, `run.sh`, `READM
  ███     █████░███░      ██░      ███░   ████████░░░░████
  ███████████░░░█████████ ████████ ██████████░░░░░░    ████
   ░░░░░░░░░░░   ░░░░░░░░░ ░░░░░░░░ ░░░░░░░░░░          ░░░░
-        DX-AGENTIC-DEV · on-device NPU
+        DX-AGENT-DEV · on-device NPU
 ```
 
-[DX-AGENTIC-DEV: DONE (output-dir: dx-compiler/dx-agent-dev/20260611-104801_claude_opus48_yolo26n_retrain_eval/)]
+[DX-AGENT-DEV: DONE (output-dir: dx-compiler/dx-agent-dev/20260611-104801_claude_opus48_yolo26n_retrain_eval/)]
 
 Now the final housekeeping step — render this session's transcript into the output dir:
 
