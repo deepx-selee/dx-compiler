@@ -25,7 +25,9 @@ git clone -b rapid_doc_deepx https://github.com/DEEPX-AI/RapidDoc.git   # then r
 
 - **DX-M1 NPU** target; **x86-64 Linux** host with the DEEPX runtime (`dx_rt` / `dx_engine`) installed.
 - Models are **DEEPX-compiled** artifacts shipped/downloaded by the DEEPX fork — do NOT
-  re-compile PaddleOCR models by hand; use the fork's provided models / download step.
+  re-compile PaddleOCR/RapidDoc models by hand. Run the fork's **`./setup.sh`** (downloads
+  the prebuilt `onnx_models/` + `dxnn_models/`); hand-compiling each `.dxnn` is the known
+  cause of the build deadlock.
 - The DEEPX runtime env MUST be sourced (DX-RT thread/dynamic-CPU env vars) before inference.
 - Output isolation still applies: generated apps go to `dx-agent-dev/<session_id>/`.
 
@@ -33,11 +35,17 @@ git clone -b rapid_doc_deepx https://github.com/DEEPX-AI/RapidDoc.git   # then r
 
 Setup (from the `rapid_doc_deepx` branch checkout):
 ```bash
-source venv311/bin/activate                       # or the suite venv with deps installed
+pip install -r requirements.deepx.txt && pip install -e .   # deps + editable package
+# Download the prebuilt NPU models — do NOT hand-compile any .dxnn. The fork's
+# setup.sh → setup_assets() → setup_sample_models.sh fetches the required onnx_models/
+# + dxnn_models/ payloads (skips the download if they already exist):
+./setup.sh                                        # host mode auto-detected; --force-remove-models to refetch
 source ./deepx_scripts/set_env.sh 1 2 1 3 2 4     # DX-RT env: INTER/INTRA op threads, dynamic CPU, task load, NFH workers
 export DXNN_DEVICES=0                              # NPU device(s); 0,1,2,3 for multi-NPU (auto-detected if unset)
-pip install -r requirements.deepx.txt && pip install -e .
 ```
+**Model acquisition = `./setup.sh`, never a `dxcom` compile.** The deadlock class of
+failure (agent stalls downloading/compiling each model by hand) is avoided entirely:
+`./setup.sh` is the one turnkey step that provisions every onnx+dxnn the pipeline needs.
 
 Run (offline PDF → Markdown):
 ```bash
@@ -81,37 +89,40 @@ while True:
 
 ## Example end-user build prompts (canonical)
 
-These are the prompts a real user types; an agent reads THIS toolset (+ clones the DEEPX
-branches) and builds the apps. Headless/autopilot runs append "work autonomously to
-completion; produce the actual artifacts. Respond in English." (trimmed from the showcase README).
+These are the prompts a **real user** types — short, goal-only, and deliberately
+**naming NO toolset path, file, repo branch, or env script.** The agent is expected to
+route to THIS toolset from the task vocabulary alone ("OCR app / video / webcam",
+"PDF to Markdown / document parsing", "DEEPX DX-M1 NPU"), then read it and the cloned
+DEEPX-branch docs to fill in `set_env.sh`, `DXNN_DEVICES`, `./setup.sh`, `demo/demo_offline.py`,
+etc. **Do NOT pad the prompt with operator scaffolding** (toolset paths, branch names, file
+lists) — proving the skill + routing supply that is the point. Headless/autopilot runs may
+append "work autonomously to completion; submit actual artifacts, not just a plan. Respond
+in English." (trimmed from the showcase README).
 
 **1) Video-file + webcam OCR inference app**
-> Build an OCR inference app that runs the PaddlePaddle PaddleOCR (PP-OCRv5) text
-> detection + recognition models on the DEEPX DX-M1 NPU, using the DEEPX PaddleOCR-deepx
-> integration (the `deepx` branch of DEEPX-AI/PaddleOCR-deepx). The app must accept BOTH a
-> **video file** (`--source <path.mp4>`) and a **live webcam** (`--source <camera_index>`),
-> run NPU OCR on each frame, overlay detected text boxes + recognized strings, and write an
-> annotated output video (and optionally show a live window). Save one annotated sample
-> frame as `sample_detect.jpg`. Before writing code, READ
-> `dx-compiler/.deepx/toolsets/paddlepaddle-deepx.md` and the PaddleOCR-deepx `deepx`-branch
-> docs, and follow them. Provide setup.sh (env + deps), run.sh, and a short README with the
-> measured per-frame latency / FPS on the NPU.
+> Build an OCR inference app whose text detection + recognition runs on the DEEPX DX-M1 NPU.
+> The app must accept BOTH a **video file** (`--source <path.mp4>`) and a **live webcam**
+> (`--source <camera_index>`), run NPU OCR on each frame, overlay detected text boxes +
+> recognized strings, and write an annotated output video (optionally show a live window).
+> Save one annotated sample frame as `sample_detect.jpg`. Provide setup.sh, run.sh, and a
+> short README reporting the measured per-frame latency / FPS on the NPU.
 
 **2) PDF → Markdown app**
-> Build a PDF-to-Markdown app using DEEPX's RapidDoc integration (the `rapid_doc_deepx`
-> branch of DEEPX-AI/RapidDoc), running the document-parsing pipeline (layout analysis +
-> OCR + table/formula recognition) on the DEEPX DX-M1 NPU. Input a PDF (digital or scanned),
-> output structured Markdown (+ JSON) preserving headings/tables. Support `--parse-method
-> auto|txt|ocr`. Before writing code, READ
-> `dx-compiler/.deepx/toolsets/paddlepaddle-deepx.md` and RapidDoc's `README_DEEPX_EN.md`,
-> and follow them (`set_env.sh`, `DXNN_DEVICES`, `demo/demo_offline.py`). Provide setup.sh,
-> run.sh, a sample input PDF + its rendered Markdown output, and a README reporting NPU
-> stage timings.
+> Build a PDF-to-Markdown app whose document-parsing pipeline (layout analysis + OCR +
+> table/formula recognition) runs on the DEEPX DX-M1 NPU. Input a PDF (digital or scanned),
+> output structured Markdown (+ JSON) preserving headings and tables. Support
+> `--parse-method auto|txt|ocr`. Provide setup.sh, run.sh, a sample input PDF + its rendered
+> Markdown output (`sample_output.md`), and a README reporting NPU stage timings.
 
 ## Anti-patterns (STOP)
 
 - Following upstream PaddleOCR/RapidDoc `main` for the NPU path — it has **no DeepX backend**.
   Always use the DEEPX `deepx` / `rapid_doc_deepx` branches.
-- Hand-compiling PaddleOCR models to `.dxnn` — use the fork's provided/downloaded NPU models.
+- Hand-compiling PaddleOCR/RapidDoc models to `.dxnn` with `dxcom` — run the fork's
+  **`./setup.sh`** to download the prebuilt `onnx_models/` + `dxnn_models/`. Manual
+  per-model download/compile is what previously **deadlocked** the build.
+- Launching the model download/compile as a **background task** in a headless run — a
+  `claude -p` process can't resume on the completion notification, so it hangs forever.
+  Run `./setup.sh` in the **foreground** (it is the single blocking provisioning step).
 - Running inference without sourcing the DX-RT env (`deepx_scripts/set_env.sh`) → device errors.
 - Claiming NPU results without the runtime actually initialized (run the suite sanity check first).
