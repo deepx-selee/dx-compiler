@@ -47,21 +47,14 @@ export DXNN_DEVICES=0                              # NPU device(s); 0,1,2,3 for 
 failure (agent stalls downloading/compiling each model by hand) is avoided entirely:
 `./setup.sh` is the one turnkey step that provisions every onnx+dxnn the pipeline needs.
 
-Run (offline PDF → Markdown):
-```bash
-# default 7-stage finegrained streaming pipeline (Layout → Plan → Formula → PDF-det → OCR-det → Table → OCR-rec)
-python demo/demo_offline.py <input.pdf|dir> --finegrained
-# parse-method: auto (digital→text layer, scanned→OCR, per-page) | txt (no OCR, fastest) | ocr (force OCR all pages)
-python demo/demo_offline.py scanned.pdf --parse-method ocr
-python demo/demo_offline.py digital.pdf --parse-method txt
-# multi-NPU physical parallelism (one model per NPU)
-export DXNN_DEVICES=0,1,2,3; python demo/demo_offline.py docs/ --finegrained --hybrid
-# NPU utilization while running
-python run_with_npu_monitor.py python demo/demo_offline.py docs/ --finegrained
-```
-- Output: Markdown + JSON under `demo/output-offline-<mode>/` (preserves layout/headings/tables).
-- `--no-formula` keeps formula regions as cropped images instead of LaTeX.
-- Gradio demo launcher: `run_rapiddoc_demo.sh` (serves http://0.0.0.0:7860).
+The fork's `demo/demo_offline.py` shows the pipeline (parse-method `auto|txt|ocr`,
+`--finegrained` 7-stage streaming, `--hybrid` multi-NPU). **When BUILDING an app, do NOT
+ship/run that demo** — generate a **standalone entry** that imports the fork's pipeline API
+(`rapid_doc.backend.pipeline.pipeline_analyze.doc_analyze`, `rapid_doc.data.data_reader_writer`)
+and **vendor the `rapid_doc` package** into the app dir. See the app-build companion
+`dx-runtime/dx_app/.deepx/toolsets/paddleocr-rapiddoc-app.md` (sections A/B + "Mandatory
+deliverables"). Output: Markdown + JSON (preserves layout/headings/tables; `--no-formula`
+keeps formula regions as cropped images).
 
 ## B. PaddleOCR-deepx — OCR inference (build a video/webcam app)
 
