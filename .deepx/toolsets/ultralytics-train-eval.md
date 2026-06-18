@@ -101,6 +101,29 @@ quantization effect are both visible:
 Report Δaccuracy (retrain vs base) and Δspeed; note that a smaller `nc` head often makes
 the domain `.dxnn` **faster** on the NPU than the 80-class stock model.
 
+## 6. Relocatable packaging (HARD GATE — showcases)
+
+A generated retrain→eval showcase MUST be **self-contained and relocatable**: moving the
+folder (or running it from a fresh checkout) and re-running `run.sh` MUST work with NO edit
+to any file. Two recurring violations and the rule:
+
+- **NEVER serialize absolute paths** into data files (`train_result.json`, configs,
+  `results.json`). An absolute `best_pt`/`save_dir` into the build session/worktree breaks
+  the instant the showcase is copied (the ppe `retrained best.pt missing` regression). If you
+  must persist training metadata, store **paths relative to the script dir**
+  (`Path(__file__).resolve().parent`).
+- **Prefer regenerate-if-missing over skip-if-metadata-exists.** The robust pattern
+  (wildlife): a single `pipeline.py` that, when weights are absent, trains from scratch and
+  copies `best.pt` into the showcase dir under a stable relative name
+  (`shutil.copy(best, HERE / "<domain>_yolo26n.pt")`), then exports + evals using only
+  `HERE / <relative>` paths. `run.sh` simply runs the pipeline (no `if train_result.json`
+  short-circuit that points at a vanished absolute path).
+- If shipping pre-trained weights instead of retraining, bundle the `.pt` in the showcase
+  dir and reference it relative to the script — never an absolute build-worktree path.
+
+`dx-showcase-gen verify` fails a showcase whose committed files (incl. `*.json`) contain a
+build-session/absolute path.
+
 ## Constraints / notes
 
 - Export/compile is **x86-64 Linux only**; **detection** task; **INT8 enforced** (see
