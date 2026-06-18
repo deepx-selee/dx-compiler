@@ -120,6 +120,20 @@ to any file. Two recurring violations and the rule:
   short-circuit that points at a vanished absolute path).
 - If shipping pre-trained weights instead of retraining, bundle the `.pt` in the showcase
   dir and reference it relative to the script — never an absolute build-worktree path.
+- **Annotated sample image: pick the BEST-detections val image, not a fixed/middle index.**
+  The showcase card shows `sample_detect.jpg`; a busy, representative scene reads far better
+  than `imgs[len//2]` (which lands on a near-empty frame). Scan the val set once on the
+  retrained model and keep the image with the most boxes (deterministic given fixed
+  weights + val set):
+  ```python
+  sample_model = YOLO(str(retrained_pt))
+  sample_src, best_n = imgs[0], -1
+  for p in imgs:
+      nb = len(sample_model.predict(source=str(p), imgsz=IMGSZ, conf=0.25,
+                                    device=0, save=False, verbose=False)[0].boxes)
+      if nb > best_n: sample_src, best_n = p, nb
+  # then predict sample_src with save=True → sample_detect.jpg
+  ```
 
 `dx-showcase-gen verify` fails a showcase whose committed files (incl. `*.json`) contain a
 build-session/absolute path.
