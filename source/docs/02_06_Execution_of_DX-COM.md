@@ -91,6 +91,43 @@ Enabling `--aggressive_partitioning` maximizes operations executed on the NPU. T
 
 ---
 
+#### Quantization Quality and Tuning
+
+These options control quantization accuracy enhancement and the diagnose → re-quantize tuning loop. Available in **DX-COM v2.4.0 and later**.
+
+| **Option** | **Value/Default** | **Description** |
+| :--- | :--- | :--- |
+| `--use_q_pro` | Flag | Enable the automatic Q-PRO quantization pipeline (ONNX compile path only). Mutually exclusive with a manual `enhanced_scheme`. |
+| `--quant_diagnosis` | Flag | Produce a per-region quantization diagnosis report (`quant_diagnosis/diagnosis_report.html`) and a reusable resume checkpoint (`quant_diagnosis/{model}.qxnn`). |
+| `--checkpoint` | `<path>.qxnn` | Path to a `.qxnn` resume artifact. Selects **QXNN resume** mode (re-quantize without recompile). Mutually exclusive with `-m/--model_path`. |
+| `--recalibration_method` | `{minmax,ema,iqr}` | **(Resume-only)** Observer override applied during re-calibration. |
+| `--enhanced_scheme` | e.g. `P3:num_samples=2048` | **(Resume-only)** Manual Q-PRO scheme selection. Mutually exclusive with `--use_q_pro`. |
+| `--dataset_path` | Path | **(Resume-only)** Override the calibration dataset path embedded in the checkpoint. |
+
+For automatic Q-PRO details see [Automatic Q-PRO (`use_q_pro`)](#automatic-q-pro-use_q_pro) below. For the full diagnose → resume workflow, see [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md).
+
+##### Automatic Q-PRO (`use_q_pro`)
+
+When quantization accuracy degrades, Q-PRO enhancement schemes (DXQ-P0 to DXQ-P5) can improve it. The `enhanced_scheme` JSON field exposes these schemes for **manual** selection (see [Enhanced Quantization Scheme (DXQ)](02_05_JSON_File_Configuration.md#optional-parameters-enhanced-quantization-scheme-dxq)). The `--use_q_pro` flag is the **automatic** alternative: DX-COM generates DXQ combinations and selects the optimal enhancement stages based on model structure and compile-time metrics — no manual tuning required.
+
+```bash
+# dxcom CLI
+dxcom -m model.onnx -c config.json -o ./output --use_q_pro
+```
+```python
+# dx_com Python module
+import dx_com
+dx_com.compile(model="model.onnx", output_dir="./output", config="config.json", use_q_pro=True)
+```
+
+- **Mutually exclusive** with a manual `enhanced_scheme` — choose one, not both.
+- Can also be enabled while re-quantizing via [QXNN Resume](02_07_Quantization_Tuning_Workflow.md#qxnn-resume-re-quantization-without-recompile).
+
+!!! tip "Automatic vs Manual"
+    Prefer `--use_q_pro` for the easiest path to higher-accuracy quantization. Drop down to a manual `enhanced_scheme` only when you need to pin a specific DXQ scheme.
+
+---
+
 #### Debugging and Logging
 
 These options are vital for troubleshooting, logging, and targeting specific sections of the model.  
@@ -98,6 +135,7 @@ These options are vital for troubleshooting, logging, and targeting specific sec
 | **Option** | **Shorthand** | **Description** |
 | :--- | :--- | :--- |
 | `--gen_log` | N/A | When enabled, the compiler collects all compilation logs into a `compiler.log` file in the specified output directory. Useful for debugging or analyzing the compilation process |
+| `--export_html` | N/A | Generate a self-contained HTML summary report (`<model_name>_summary.html`) in the output directory after compilation. See [Compilation Summary Report](04_02_Compilation_Summary_Report.md) |
 | `--version` | `-v` | Prints the compiler module version and exits |
 
 **Partial Compilation (`--compile_input_nodes`, `--compile_output_nodes`)**  
@@ -136,11 +174,42 @@ dxcom \
 --gen_log
 ```
 
+**With HTML Summary Report**  
+This command adds the `--export_html` flag to also generate `<model_name>_summary.html` in the output directory.  
+```bash
+dxcom \
+-m sample/MobilenetV1.onnx \
+-c sample/MobilenetV1.json \
+-o output/mobilenetv1 \
+--export_html
+```
+
 **Version Information**  
 This command prints the compiler module version and exits.  
 ```
 dxcom --version
 ```
+
+**With Quantization Diagnosis**  
+This command enables `--quant_diagnosis` to produce a per-region diagnosis report and a `.qxnn` resume checkpoint under `quant_diagnosis/` in the output directory.  
+```
+dxcom \
+-m large_model.onnx \
+-c config.json \
+-o output/large_model \
+--quant_diagnosis
+```
+
+**Re-quantize from a Checkpoint (QXNN Resume)**  
+This command re-runs quantization from a `.qxnn` checkpoint with a different calibration observer, skipping the earlier compile phases. No `-m`/`-c` is required.  
+```
+dxcom \
+--checkpoint output/large_model/quant_diagnosis/large_model.qxnn \
+-o output/large_model_iqr \
+--recalibration_method iqr
+```
+
+See [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md) for the full diagnose → resume loop.
 
 **Compile Sample Models (Script)**  
 For the end-to-end sample workflow, see [Quick Start Guide](00_Quick_Start.md#compile-sample-models). The `./example/3-compile_sample_models.sh` helper compiles `YOLOV5S-1`, `YOLOV5S_Face-1`, and `MobileNetV2-1` with `dxcom`, using assets prepared under `dx_com/`. If `dxcom` is not available in the current shell, the script first tries to activate the DX-COM virtual environment.  
@@ -155,7 +224,8 @@ The Python wheel package also provides a programmatic interface for model compil
     For practical code examples and step-by-step guides, see:
 
     - [Quick Start Guide](00_Quick_Start.md)
-    - [Common Use Cases](02_07_Common_Use_Cases.md)
+    - [Common Use Cases](02_08_Common_Use_Cases.md)
+    - [Pre-Optimize API](02_09_Pre_Optimize_API.md) for `dx_com.pre_optimize()`, an ONNX-level transform that reduces CPU-side post-processing for YOLO-family models before compilation.
 
 ### Overview
 
@@ -181,6 +251,7 @@ def compile(
     enhanced_scheme: Optional[Dict] = None,
     gen_log: bool = False,
     float64_calibration: bool = False,
+    export_html: bool = False,
 ) -> None
 ```
 
@@ -354,6 +425,44 @@ enhanced_scheme={
 - **Default**: `False`
 - **Description**: Use float64 precision during calibration and offset calculations for cross-CPU determinism
 
+**`export_html`**
+
+- **Type**: `bool`
+- **Default**: `False`
+- **Description**: Generate a self-contained HTML summary report (`<model_name>_summary.html`) in the output directory after compilation. See [Compilation Summary Report](04_02_Compilation_Summary_Report.md) for details.
+
+**`use_q_pro`**
+
+- **Type**: `bool`
+- **Default**: `False`
+- **Description**: Enable the automatic Q-PRO quantization pipeline. DX-COM automatically selects and applies the optimal DXQ enhancement stages.
+- **Limitation**: Mutually exclusive with `enhanced_scheme`.
+- **See also**: [Automatic Q-PRO (`use_q_pro`)](02_06_Execution_of_DX-COM.md#automatic-q-pro-use_q_pro)
+
+**`quant_diagnosis`**
+
+- **Type**: `bool`
+- **Default**: `False`
+- **Description**: Generate an HTML quantization diagnosis report. Produces `{output_dir}/quant_diagnosis/{model}.qxnn` (resume checkpoint) and `{output_dir}/quant_diagnosis/diagnosis_report.html`.
+- **See also**: [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md)
+
+**`checkpoint`** *(QXNN Resume)*
+
+- **Type**: `Optional[str]`
+- **Default**: `None`
+- **Description**: Path to a `.qxnn` resume artifact. When provided, selects the **QXNN resume** path, which re-runs quantization without recompiling. The `model`/`config` arguments are not required in this mode.
+- **Related parameters** (resume-only): `recalibration_method` (`"minmax"`/`"ema"`/`"iqr"`), `dataset_path`, and `enhanced_scheme`.
+
+```python
+import dx_com
+
+dx_com.compile(
+    checkpoint="output/large_model/quant_diagnosis/large_model.qxnn",
+    output_dir="output/large_model_iqr",
+    recalibration_method="iqr",   # or: use_q_pro=True
+)
+```
+
 ---
 
 ### Return Value
@@ -377,7 +486,7 @@ dx_com.compile(
 )
 ```
 
-For more detailed examples — including DataLoader usage, multi-input models, edge device optimization, and advanced quantization — see [Common Use Cases](02_07_Common_Use_Cases.md).
+For more detailed examples — including DataLoader usage, multi-input models, edge device optimization, and advanced quantization — see [Common Use Cases](02_08_Common_Use_Cases.md).
 
 ---
 
@@ -409,6 +518,7 @@ Upon successful compilation, the `output_dir` will contain:
 
 - `[model_name].dxnn`: Compiled model binary for execution on DEEPX NPU hardware
 - `compiler.log` (if `gen_log=True`): Detailed compilation logs
+- `[model_name]_summary.html` (if `--export_html` / `export_html=True`): Self-contained HTML compilation summary report
 
 ---
 

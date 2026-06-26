@@ -388,4 +388,168 @@ dx_com.compile(
 
 For all available DXQ schemes (DXQ-P0 to DXQ-P5) and their parameters, see [Enhanced Quantization Scheme (DXQ)](02_05_JSON_File_Configuration.md#optional-parameters-enhanced-quantization-scheme-dxq).
 
+### Automatic Q-PRO (`use_q_pro`)
+
+If you don't want to hand-pick a DXQ scheme, let DX-COM choose for you. Setting `use_q_pro` enables the **automatic Q-PRO pipeline**: the compiler generates DXQ combinations and applies the optimal quantization enhancement stages based on model structure and compile-time metrics — no manual `enhanced_scheme` tuning required.
+
+!!! note "Version Support"
+    Automatic Q-PRO (`use_q_pro`) is available in **DX-COM v2.4.0 and later**. It is **mutually exclusive** with manual `enhanced_scheme`.
+
+**Option A: `dxcom` Command**
+```bash
+dxcom \
+  -m large_model.onnx \
+  -c config.json \
+  -o output/large_model_qpro \
+  --use_q_pro \
+  --opt_level 1
+```
+
+**Option B: `dx_com` Python Module**
+```python
+import dx_com
+
+dx_com.compile(
+    model="large_model.onnx",
+    output_dir="output/large_model_qpro",
+    config="config.json",
+    use_q_pro=True,   # automatic DXQ selection (do not combine with enhanced_scheme)
+    opt_level=1,
+    calibration_num=100,
+)
+```
+
+!!! tip "Automatic vs Manual"
+    Start with `use_q_pro=True` for the easiest path to higher-accuracy quantization. Switch to a manual `enhanced_scheme` (e.g., `{"DXQ-P3": {...}}`) only when you need precise control over a specific DXQ scheme. See [Automatic Q-PRO (`use_q_pro`)](02_06_Execution_of_DX-COM.md#automatic-q-pro-use_q_pro).
+
+---
+
+## Use Case 6: Diagnose and Re-quantize Without Recompile
+
+**Scenario**: A model compiled successfully, but quantization accuracy is lower than expected. You want to (1) find out *which* regions are responsible and (2) iterate on quantization settings **without paying the full compile cost each time**.
+
+This use case chains three v2.4.0 features into one tuning loop:
+
+1. **`quant_diagnosis`** — produces an HTML report of per-region quantization quality **plus** a reusable `.qxnn` checkpoint.
+2. **QXNN Resume** — re-runs quantization from that `.qxnn` checkpoint, skipping the earlier compile phases.
+3. **Re-calibration / Q-PRO** — applies a different calibration method or enables Q-PRO during the resume to improve accuracy.
+
+!!! note "Version Support"
+    `quant_diagnosis` and QXNN Resume are available in **DX-COM v2.4.0 and later**. For the full workflow reference, see [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md).
+
+### Step 1 — Compile with diagnosis enabled
+
+Enabling `quant_diagnosis` writes both the HTML report and the `.qxnn` resume artifact under `quant_diagnosis/` in the output directory.
+
+**Option A: `dxcom` Command**
+```bash
+dxcom \
+  -m large_model.onnx \
+  -c config.json \
+  -o output/large_model \
+  --quant_diagnosis
+```
+
+**Option B: `dx_com` Python Module**
+```python
+import dx_com
+
+dx_com.compile(
+    model="large_model.onnx",
+    output_dir="output/large_model",
+    config="config.json",
+    quant_diagnosis=True,
+)
+```
+
+This produces:
+
+- `output/large_model/quant_diagnosis/large_model.qxnn` — resume checkpoint
+- `output/large_model/quant_diagnosis/diagnosis_report.html` — per-region report with ready-to-paste retry snippets
+
+Open the HTML report to identify high-severity regions and the recommended settings.
+
+### Step 2 — Resume from the checkpoint with new settings
+
+Instead of recompiling from the ONNX model, point `dxcom`/`dx_com` at the `.qxnn` checkpoint. The earlier compile phases are skipped and only quantization re-runs.
+
+**Re-calibrate with a different observer:**
+```bash
+dxcom \
+  --checkpoint output/large_model/quant_diagnosis/large_model.qxnn \
+  -o output/large_model_iqr \
+  --recalibration_method iqr
+```
+
+**Or enable automatic Q-PRO during the resume:**
+```bash
+dxcom \
+  --checkpoint output/large_model/quant_diagnosis/large_model.qxnn \
+  -o output/large_model_qpro \
+  --use_q_pro
+```
+
+**Python equivalent:**
+```python
+import dx_com
+
+# Re-quantize from the checkpoint — no recompile, no model/config needed
+dx_com.compile(
+    checkpoint="output/large_model/quant_diagnosis/large_model.qxnn",
+    output_dir="output/large_model_iqr",
+    recalibration_method="iqr",   # or: use_q_pro=True
+)
+```
+
+!!! note "Resume-only options"
+    `--recalibration_method`, `--enhanced_scheme`, and `--dataset_path` are valid **only** in QXNN resume mode (i.e., with `--checkpoint`). `--checkpoint` and `-m/--model_path` are mutually exclusive. On resume, the calibration DataLoader is auto-built from the config embedded in the `.qxnn` — no `-c/--config_path` is required.
+
+!!! tip "Why this matters"
+    Because QXNN Resume skips the compile phases that don't depend on quantization, you can try several calibration methods or Q-PRO settings in quick succession, dramatically shortening the accuracy-tuning loop.
+
+---
+
+## Use Case 6: YOLO Post-Processing Optimization (CPU-Constrained Edge)
+
+**Scenario**: Deploying a YOLO-family detection or instance-segmentation model on a CPU-constrained edge host (for example, an ARM Cortex-A53) where CPU-side post-processing (Sigmoid, DFL decoding, dist2bbox over the full anchor grid) becomes the end-to-end throughput bottleneck.
+
+**Approach**: Apply `dx_com.pre_optimize()` before `dx_com.compile()`. The API rewrites the post-processing graph so that TopK selection happens first, and expensive operations are applied only to the `K` selected candidates (default 300) instead of the full anchor grid.
+
+```python
+import onnx
+import dx_com
+
+model = onnx.load("yolov8n.onnx")
+optimized = dx_com.pre_optimize(model, passes={
+    "yolo_postprocess": {
+        "layers": [
+            {
+                "bbox": "/model.22/cv2.0/cv2.0.2/Conv_output_0",
+                "cls_conf": "/model.22/cv3.0/cv3.0.2/Conv_output_0",
+            },
+            {
+                "bbox": "/model.22/cv2.1/cv2.1.2/Conv_output_0",
+                "cls_conf": "/model.22/cv3.1/cv3.1.2/Conv_output_0",
+            },
+            {
+                "bbox": "/model.22/cv2.2/cv2.2.2/Conv_output_0",
+                "cls_conf": "/model.22/cv3.2/cv3.2.2/Conv_output_0",
+            },
+        ],
+        "num_classes": 80,
+        "topk": 300,
+        "input_height": 640,
+        "input_width": 640,
+    },
+})
+
+dx_com.compile(
+    model=optimized,
+    config="yolov8n.json",
+    output_dir="./yolov8n_optimized",
+)
+```
+
+For supported model families (YOLOv8 / YOLOv9 / YOLOv11 / YOLOv12 / YOLOv13 via the `yolo_postprocess` pass, and YOLOv10 / YOLO26 via the `yolo26_postprocess` pass), output shapes, instance-segmentation usage, and the migration recipe from the deprecated `ppu.type = 2`, see [Pre-Optimize API](02_09_Pre_Optimize_API.md).
+
 ---
