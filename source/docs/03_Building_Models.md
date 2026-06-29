@@ -67,12 +67,15 @@ The following ONNX operators are supported by the compiler.
 
 | **Operator** | **Supported Conditions** |
 | :--- | :--- |
+| Elu | No restrictions |
+| Gelu | No restrictions |
 | HardSwish | No restrictions |
 | HardSigmoid | No restrictions |
 | LeakyRelu | No restrictions |
 | Mish | No restrictions |
-| PRelu | No restrictions |
+| PRelu | No restrictions on functionality. **Known issue (v2.4.0):** models using `PRelu` as an activation function exhibit significant FPS degradation on the NPU runtime. Use `LeakyRelu` or `Relu` where possible until this is resolved in a future release. See [Change Log](Appendix_Change_Log.md#known-issues) for details. |
 | Relu | No restrictions |
+| Selu | No restrictions |
 | Sigmoid | No restrictions |
 | Silu (Swish) | No restrictions |
 | Softplus | No restrictions |
