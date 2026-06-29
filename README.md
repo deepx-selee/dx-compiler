@@ -18,7 +18,7 @@
   - DX-COM: Converts ONNX models into highly optimized, NPU-ready binaries.
 
 **Flexibility & Support**
-  - OS: Compatible with Debian-based Linux (Ubuntu 20.04, 22.04, 24.04)
+  - OS: Compatible with Ubuntu 20.04, 22.04, 24.04, 26.04 (Debian-based), Fedora 42-45, Red Hat Enterprise Linux 9-10, and CentOS Stream 9-10
   - Architecture: Supports x86_64 only
 
 **Easy Installation**
