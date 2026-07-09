@@ -10,6 +10,7 @@
 **기술 용어 규칙**: 한국어로 응답할 때 영어 기술 용어는 원래 영어 형태를 유지하세요.
 영어 용어를 한글 음차로 표기하지 마세요 (한글 음차 표기 금지). 정착된 한국어 외래어
 (모델, 서버, 파일, 데이터)는 허용됩니다.
+
 ## 권장 모델 (사전 비행 점검)
 
 DX Agent-Driven Development는 강력한 instruction following과 knowledge base 활용 능력을
@@ -150,7 +151,7 @@ FP16/FP32 출력 옵션이 없습니다. 사용자에게 출력 정밀도를 선
 
 **Gate 1 — 브레인스토밍**: 입력 확인 (모델 경로, 형식, 타겟 디바이스, 교정 데이터).
 **Gate 2 — 빌드**: 선택된 파라미터로 컴파일 실행.
-**Gate 3 — 검증**: DX-TRON으로 출력 검증, compiler.log 검토.
+**Gate 3 — 검증**: HTML 그래프 뷰어 출력 검토, compiler.log 확인.
 
 ## 빠른 참조
 
@@ -194,7 +195,7 @@ dx_com.compile(model="model.onnx", output_dir="output/", config="config.json")
 4. **입력 이름 일치**: config.json의 `inputs` 키는 ONNX 입력 이름과 정확히 일치해야 함
 5. **대표적 교정**: 교정 이미지는 추론 분포와 일치해야 함
 6. **PPU 타입 중요**: Type 0 = anchor-based (YOLOv3-v7), Type 1 = anchor-free (YOLOX, YOLOv8-v12). YOLO26은 PPU를 지원하지 않음.
-7. **항상 검증**: 모든 컴파일 후 DX-TRON 검사 실행
+7. **항상 검증**: 모든 컴파일 후 HTML 그래프 뷰어 출력 검토
 8. **하드코딩된 경로 금지**: 교정 데이터에 상대 경로 사용 (`./calibration_dataset`)
 9. **출력 격리**: 모든 결과물은 `dx-agent-dev/<session_id>/`에 저장.
    **세션 ID 형식**: `YYYYMMDD-HHMMSS_<agent>_<coding_model>_<target_model>_<task>` — 타임스탬프는 반드시
