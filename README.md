@@ -19,11 +19,16 @@
 
 **Flexibility & Support**
   - OS: Compatible with Ubuntu 20.04, 22.04, 24.04, 26.04 (Debian-based), Fedora 42-45, Red Hat Enterprise Linux 9-10, and CentOS Stream 9-10
+  - Python: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14
   - Architecture: Supports x86_64 only
 
 **Easy Installation**
   - Our single script automates the full setup process
   - All DX-Compiler components are ready to use upon completion.
+
+**Beta Features (v2.4.0)**
+  - **Agent-Driven Development (dx-agent-dev)**: Compile ONNX models using natural language prompts. AI coding agents (Claude Code, GitHub Copilot, Cursor, OpenCode, Codex CLI) understand the DX-COM pipeline and generate deployment-ready `.dxnn` models with automatic verification. See the 
+    [Agent-Driven Development Guide](./source/docs/06_DX-COMPILER_Agent_Driven_Development.md) for details.
 
 ---
 
