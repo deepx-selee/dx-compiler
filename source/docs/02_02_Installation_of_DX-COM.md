@@ -48,6 +48,8 @@ sudo dnf install -y mesa-libGL glib2 make
 | :--- |
 | Python 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14 |
 
+DX-COM now supports **Python 3.13 and 3.14**
+
 **Install the Wheel**  
 
 DX-COM wheels are built with `auditwheel` and tagged with the `manylinux_2_31_x86_64` platform tag, which means they require **glibc ≥ 2.31** on the host (Ubuntu 20.04+, Debian 11+, RHEL/CentOS 9+, Fedora 42+).
