@@ -14,10 +14,10 @@ These parameters are defined in a JSON file, which serves as a blueprint for how
 | `default_loader` | Yes | Preprocessing configuration with dataset loading |
 | `quantization_device` | No | Target device for quantization computation. GPU auto-selected if available |
 | `enhanced_scheme` | No | DXQ-P0~P5 quantization enhancement for accuracy improvement (DX-COM v2.1.0+) |
-| `qmaster` | No | Quantization-Aware Training (QAT) hyperparameters. Presence of this block enables QAT (DX-COM v2.4.0+). See [Quantization-Aware Training (QAT)](02_08_Quantization_Aware_Training.md) |
+| `qmaster` | No | Quantization-Aware Training (QAT) hyperparameters. Presence of this block enables QAT (DX-COM v2.4.0+). See [Quantization-Aware Training (QAT)](04_02_Quantization_Aware_Training.md) |
 | `ppu` | No | Object detection post-processing (YOLO models) |
 
-For complete examples, see [Common Use Cases](02_08_Common_Use_Cases.md).  
+For complete examples, see [Common Use Cases](04_04_Common_Use_Cases.md).  
 
 ---
 
@@ -133,7 +133,7 @@ Example
     - **GPU**: NVIDIA GPU with CUDA support.
     - **Framework**: PyTorch built with CUDA support (`torch.cuda.is_available()` must return `True`).
 
-For practical examples, see [Use Case 5: Enhanced Quantization (DXQ)](02_08_Common_Use_Cases.md#use-case-5-enhanced-quantization-dxq).
+For practical examples, see [Use Case 5: Enhanced Quantization (DXQ)](04_04_Common_Use_Cases.md#use-case-5-enhanced-quantization-dxq).
 
 ---
 
@@ -144,7 +144,7 @@ For practical examples, see [Use Case 5: Enhanced Quantization (DXQ)](02_08_Comm
 
 When quantizing a model, accuracy degradation may occur compared to the original model. To mitigate this, **Q-PRO options** (DXQ-P0 to DXQ-P5) can be used to enhance quantization performance.  
 
-!!! tip "Prefer automatic selection?"
+!!! note "Prefer automatic selection?"
     The DXQ schemes below are the **manual** Q-PRO interface. To let DX-COM pick the DXQ combination for you, use the compile-time `--use_q_pro` flag instead — see [Automatic Q-PRO (`use_q_pro`)](02_06_Execution_of_DX-COM.md#automatic-q-pro-use_q_pro). Automatic Q-PRO and a manual `enhanced_scheme` are mutually exclusive.
 
 | Name | Compilation Speed | Accuracy Improvement |
@@ -160,7 +160,7 @@ When quantizing a model, accuracy degradation may occur compared to the original
     **Best Accuracy**: DXQ-P3 and DXQ-P4 generally offer better accuracy, so try them first.  
     
     **GPU Acceleration**: DXQ schemes (especially P1~P5) are computationally intensive. Using `quantization_device="cuda"` can reduce compilation time by **2-5x** compared to CPU. 
-    See [Use Case 5: Enhanced Quantization (DXQ)](02_08_Common_Use_Cases.md#use-case-5-enhanced-quantization-dxq) for examples.  
+    See [Use Case 5: Enhanced Quantization (DXQ)](04_04_Common_Use_Cases.md#use-case-5-enhanced-quantization-dxq) for examples.  
 
 !!! warning "Limitations"
     Results are **not guaranteed** to improve accuracy. Results may vary depending on the model and dataset.
@@ -224,7 +224,9 @@ Support the optional `num_samples` parameter. Recommended value: 1024.
 
 The Post-Processing Unit (PPU) is a hardware module inside the NPU for accelerating selected post-processing steps in supported object detection models. The `ppu` configuration section exists to enable this hardware path and provide the parameters required to use it.
 
-In this section, `type = 0` and `type = 1` still configure PPU hardware paths. `type = 2` is different: it does **not** use the PPU hardware. Instead, it enables an additional CPU-side TopK-based optimization flow for compatible DFL-based YOLO models. Note that `ppu.type = 2` is deprecated in v2.4.0 — see the [Type 2](#type-2-dfl-based-anchor-free-models-cpu-side-topk-optimization) section below.
+!!! warning "Deprecation Notice — PPU Type 2"
+    Starting with DX-Compiler **v2.4.0**, `ppu.type = 2` is deprecated and will be removed in a future release. See the [Type 2](#type-2-dfl-based-anchor-free-models-cpu-side-topk-optimization) section below. 
+    `type = 0` and `type = 1` still configure PPU hardware paths. `type = 2` is different: it does **not** use the PPU hardware. Instead, it enables an additional CPU-side TopK-based optimization flow for compatible DFL-based YOLO models. 
 
 These configurations can automate or optimize the following operations:  
 
@@ -273,7 +275,7 @@ The performance effect depends on the selected PPU type. `type = 0` and `type = 
 |------|--------------|------------------|
 | 0 | Anchor-Based | YOLOv3, YOLOv4, YOLOv5, YOLOv7 |
 | 1 | Anchor-Free | YOLOX, YOLOv8, YOLOv9, YOLOv10, YOLOv11, YOLOv12 |
-| 2 | DFL-Based Anchor-Free | YOLOv8, YOLOv9, YOLOv11, YOLOv12 (optional CPU-side TopK optimization path; **deprecated in v2.4.0** — use [`dx_com.pre_optimize()`](02_09_Pre_Optimize_API.md) instead) |
+| 2 | DFL-Based Anchor-Free | YOLOv8, YOLOv9, YOLOv11, YOLOv12 (optional CPU-side TopK optimization path; **deprecated in v2.4.0** — use [`dx_com.pre_optimize()`](04_03_Pre_Optimize_API.md) instead) |
 
 ---
 
@@ -353,11 +355,11 @@ Parameters:
 
 !!! warning "Deprecated in v2.4.0"
 
-    `ppu.type = 2` is **deprecated** as of DX-Compiler v2.4.0 and will be removed in a future release. New projects should use the [`dx_com.pre_optimize()` API](02_09_Pre_Optimize_API.md), which provides the same TopK-first optimization (and adds support for instance segmentation and YOLO26). Compiling a model with PPU type 2 still works in v2.4.0 but emits a deprecation warning. See [Migration from PPU Type 2](02_09_Pre_Optimize_API.md#migration-from-ppu-type-2) for the replacement recipe.
+    `ppu.type = 2` is **deprecated** as of DX-Compiler v2.4.0 and will be removed in a future release. New projects should use the [`dx_com.pre_optimize()` API](04_03_Pre_Optimize_API.md), which provides the same TopK-first optimization (and adds support for instance segmentation and YOLO26). Compiling a model with PPU type 2 still works in v2.4.0 but emits a deprecation warning. See [Migration from PPU Type 2](04_03_Pre_Optimize_API.md#migration-from-ppu-type-2) for the replacement recipe.
 
 `ppu.type = 2` is an optional CPU-side TopK optimization path for compatible DFL-based anchor-free YOLO models. It does **not** use the PPU hardware. Post-processing still runs on the CPU, and TopK is also performed on the CPU. By reducing the number of candidate boxes that continue into later CPU-side DFL-based decoding and filtering stages, this option reduces post-processing complexity and improves runtime efficiency.
 
-This option is intended for DFL-based YOLO families that expose separate per-scale `bbox` and `cls_conf` head nodes. It is an optional CPU-side optimization path in addition to the standard anchor-free PPU configuration. In internal validation for DX-COM v2.3.0, this path was compile-verified with YOLOv8, YOLOv9, YOLOv11, and YOLOv12 variants using compatible head mappings. YOLOv10 is not supported — its `one2one` decoupled head is incompatible with PPU type 2; use `yolo26_postprocess` via [`dx_com.pre_optimize()`](02_09_Pre_Optimize_API.md) instead.
+This option is intended for DFL-based YOLO families that expose separate per-scale `bbox` and `cls_conf` head nodes. It is an optional CPU-side optimization path in addition to the standard anchor-free PPU configuration. In internal validation for DX-COM v2.3.0, this path was compile-verified with YOLOv8, YOLOv9, YOLOv11, and YOLOv12 variants using compatible head mappings. YOLOv10 is not supported — its `one2one` decoupled head is incompatible with PPU type 2; use `yolo26_postprocess` via [`dx_com.pre_optimize()`](04_03_Pre_Optimize_API.md) instead.
 
 ```json
 {
