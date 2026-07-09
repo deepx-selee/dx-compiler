@@ -2,7 +2,7 @@
 
 When a model's quantized accuracy is lower than expected, DX-COM provides a tuning loop that lets you **diagnose** which regions are degrading accuracy and **re-quantize** with new settings **without repeating the full compilation**. This chapter covers the two features that make up that loop:
 
-- **Quantization Diagnosis (`quant_diagnosis`)** — generates an HTML report of per-region quantization quality and a reusable `.qxnn` checkpoint.
+- **Quantization Diagnosis (`quant_diagnosis`)** — generates an HTML report of per-layer quantization quality and a reusable `.qxnn` checkpoint.
 - **QXNN Resume** — re-runs quantization from a `.qxnn` checkpoint, skipping the earlier compile phases.
 
 !!! note "Version Support"
@@ -22,7 +22,7 @@ Because the resume path reuses everything that does not depend on quantization, 
 
 ## Quantization Diagnosis (`quant_diagnosis`)
 
-Enabling `quant_diagnosis` during compilation produces an HTML report that visualizes per-region quantization quality, flags high-severity regions, and includes ready-to-paste compile snippets for retrying with recommended settings. It also emits a `.qxnn` resume artifact so you can act on those recommendations without recompiling.
+Enabling `quant_diagnosis` during compilation produces an HTML report that visualizes per-layer quantization quality, flags high-severity regions, and includes ready-to-paste compile snippets for retrying with recommended settings. It also emits a `.qxnn` resume artifact so you can act on those recommendations without recompiling.
 
 The option is self-contained — it does not require any other debug flag.
 
@@ -45,7 +45,7 @@ The report contains three parts:
 
 ![Figure. Quantization Diagnosis Report — Candidate Recompile Intents](./../resources/quant_diagnosis_recompile_intents.png){ width=600px }
 
-**Evidence Summary** (collapsible) backs the recommendations with the per-region severity distribution and weight/activation quantization details that the diagnosis is based on.
+**Evidence Summary** (collapsible) backs the recommendations with the per-layer severity distribution and weight/activation quantization details that the diagnosis is based on.
 
 ![Figure. Quantization Diagnosis Report — Evidence Summary](./../resources/quant_diagnosis_evidence_summary.png){ width=600px }
 
@@ -79,7 +79,7 @@ dx_com.compile(
 | File | Description |
 | :--- | :--- |
 | `quant_diagnosis/{model}.qxnn` | Resume checkpoint consumed by QXNN Resume |
-| `quant_diagnosis/diagnosis_report.html` | Per-region quantization quality report with retry snippets |
+| `quant_diagnosis/diagnosis_report.html` | Per-layer quantization quality report with retry snippets |
 
 !!! note
     The `.qxnn` checkpoint is always written when diagnosis runs; the HTML report is written on diagnosis success.
@@ -157,6 +157,6 @@ QXNN Resume writes the re-quantized model binary to `output_dir`:
 
 ## End-to-End Example
 
-For a complete, step-by-step walkthrough of diagnosing a model and iterating on quantization settings, see [Use Case 6: Diagnose and Re-quantize Without Recompile](02_08_Common_Use_Cases.md#use-case-6-diagnose-and-re-quantize-without-recompile).
+For a complete, step-by-step walkthrough of diagnosing a model and iterating on quantization settings, see [Use Case 6: Diagnose and Re-quantize Without Recompile](04_04_Common_Use_Cases.md#use-case-6-diagnose-and-re-quantize-without-recompile).
 
 For the automatic Q-PRO quantization pipeline used during resume, see [Automatic Q-PRO (`use_q_pro`)](02_06_Execution_of_DX-COM.md#automatic-q-pro-use_q_pro).
