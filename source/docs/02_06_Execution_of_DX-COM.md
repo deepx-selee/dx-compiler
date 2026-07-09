@@ -98,13 +98,13 @@ These options control quantization accuracy enhancement and the diagnose → re-
 | **Option** | **Value/Default** | **Description** |
 | :--- | :--- | :--- |
 | `--use_q_pro` | Flag | Enable the automatic Q-PRO quantization pipeline (ONNX compile path only). Mutually exclusive with a manual `enhanced_scheme`. |
-| `--quant_diagnosis` | Flag | Produce a per-region quantization diagnosis report (`quant_diagnosis/diagnosis_report.html`) and a reusable resume checkpoint (`quant_diagnosis/{model}.qxnn`). |
+| `--quant_diagnosis` | Flag | Produce a per-layer quantization diagnosis report (`quant_diagnosis/diagnosis_report.html`) and a reusable resume checkpoint (`quant_diagnosis/{model}.qxnn`). |
 | `--checkpoint` | `<path>.qxnn` | Path to a `.qxnn` resume artifact. Selects **QXNN resume** mode (re-quantize without recompile). Mutually exclusive with `-m/--model_path`. |
 | `--recalibration_method` | `{minmax,ema,iqr}` | **(Resume-only)** Observer override applied during re-calibration. |
 | `--enhanced_scheme` | e.g. `P3:num_samples=2048` | **(Resume-only)** Manual Q-PRO scheme selection. Mutually exclusive with `--use_q_pro`. |
 | `--dataset_path` | Path | **(Resume-only)** Override the calibration dataset path embedded in the checkpoint. |
 
-For automatic Q-PRO details see [Automatic Q-PRO (`use_q_pro`)](#automatic-q-pro-use_q_pro) below. For the full diagnose → resume workflow, see [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md).
+For automatic Q-PRO details see [Automatic Q-PRO (`use_q_pro`)](#automatic-q-pro-use_q_pro) below. For the full diagnose → resume workflow, see [Quantization Tuning Workflow](04_01_Quantization_Tuning_Workflow.md).
 
 ##### Automatic Q-PRO (`use_q_pro`)
 
@@ -121,9 +121,9 @@ dx_com.compile(model="model.onnx", output_dir="./output", config="config.json", 
 ```
 
 - **Mutually exclusive** with a manual `enhanced_scheme` — choose one, not both.
-- Can also be enabled while re-quantizing via [QXNN Resume](02_07_Quantization_Tuning_Workflow.md#qxnn-resume-re-quantization-without-recompile).
+- Can also be enabled while re-quantizing via [QXNN Resume](04_01_Quantization_Tuning_Workflow.md#qxnn-resume-re-quantization-without-recompile).
 
-!!! tip "Automatic vs Manual"
+!!! note "Automatic vs Manual"
     Prefer `--use_q_pro` for the easiest path to higher-accuracy quantization. Drop down to a manual `enhanced_scheme` only when you need to pin a specific DXQ scheme.
 
 ---
@@ -135,7 +135,7 @@ These options are vital for troubleshooting, logging, and targeting specific sec
 | **Option** | **Shorthand** | **Description** |
 | :--- | :--- | :--- |
 | `--gen_log` | N/A | When enabled, the compiler collects all compilation logs into a `compiler.log` file in the specified output directory. Useful for debugging or analyzing the compilation process |
-| `--export_html` | N/A | Generate a self-contained HTML summary report (`<model_name>_summary.html`) in the output directory after compilation. See [Compilation Summary Report](04_02_Compilation_Summary_Report.md) |
+| `--export_html` | N/A | Generate a self-contained HTML summary report (`<model_name>_summary.html`) in the output directory after compilation. See [Compilation Summary Report](05_02_Compilation_Summary_Report.md) |
 | `--version` | `-v` | Prints the compiler module version and exits |
 
 **Partial Compilation (`--compile_input_nodes`, `--compile_output_nodes`)**  
@@ -191,7 +191,7 @@ dxcom --version
 ```
 
 **With Quantization Diagnosis**  
-This command enables `--quant_diagnosis` to produce a per-region diagnosis report and a `.qxnn` resume checkpoint under `quant_diagnosis/` in the output directory.  
+This command enables `--quant_diagnosis` to produce a per-layer diagnosis report and a `.qxnn` resume checkpoint under `quant_diagnosis/` in the output directory.  
 ```
 dxcom \
 -m large_model.onnx \
@@ -209,7 +209,7 @@ dxcom \
 --recalibration_method iqr
 ```
 
-See [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md) for the full diagnose → resume loop.
+See [Quantization Tuning Workflow](04_01_Quantization_Tuning_Workflow.md) for the full diagnose → resume loop.
 
 **Compile Sample Models (Script)**  
 For the end-to-end sample workflow, see [Quick Start Guide](00_Quick_Start.md#compile-sample-models). The `./example/3-compile_sample_models.sh` helper compiles `YOLOV5S-1`, `YOLOV5S_Face-1`, and `MobileNetV2-1` with `dxcom`, using assets prepared under `dx_com/`. If `dxcom` is not available in the current shell, the script first tries to activate the DX-COM virtual environment.  
@@ -224,8 +224,8 @@ The Python wheel package also provides a programmatic interface for model compil
     For practical code examples and step-by-step guides, see:
 
     - [Quick Start Guide](00_Quick_Start.md)
-    - [Common Use Cases](02_08_Common_Use_Cases.md)
-    - [Pre-Optimize API](02_09_Pre_Optimize_API.md) for `dx_com.pre_optimize()`, an ONNX-level transform that reduces CPU-side post-processing for YOLO-family models before compilation.
+    - [Common Use Cases](04_04_Common_Use_Cases.md)
+    - [Pre-Optimize API](04_03_Pre_Optimize_API.md) for `dx_com.pre_optimize()`, an ONNX-level transform that reduces CPU-side post-processing for YOLO-family models before compilation.
 
 ### Overview
 
@@ -390,28 +390,28 @@ def __getitem__(self, idx):
 The `default_loader` reads each image with `cv2.imread` (**BGR**, `HWC`, `uint8`) and applies the operations below in order. When you write a custom `dataloader` you must reproduce the same chain by hand. The table lists every operation in the preprocessing registry and its `key: {args}` form.
 
 | JSON operation | Arguments | DataLoader equivalent |
-|----------------|-----------|-----------------------|
-| `resize` | `width`, `height` (or `size`, `mode`) | `cv2.resize(...)` / `transforms.Resize(...)` |
-| `resize2` / `resize3` / `resize_tv` | resize variants (`mlcommons` / `scale` / `torchvision` mode) | matching resize logic |
+| :--- | :--- | :--- |
+| `resize` | `width`, `height`<br>(or size, mode) | `cv2.resize(...)` / `transforms.Resize(...)` |
+| `resize2` / `resize3` / `resize_tv` | resize variants<br>(mlcommons / scale / torchvision mode) | matching resize logic |
 | `centercrop` / `centercrop2` | `width`, `height` | `img[top:top+h, left:left+w]` / `transforms.CenterCrop(...)` |
-| `convertColor` | `form` (e.g. `BGR2RGB`) | `cv2.cvtColor(...)` / `Image.convert("RGB")` |
-| `div` | `x` (scalar or per-channel list) | `img / x` (`div:{x:255}` ≈ `transforms.ToTensor()`) |
+| `convertColor` | `form`<br>(e.g. BGR2RGB) | `cv2.cvtColor(...)` / `Image.convert("RGB")` |
+| `div` | `x`<br>(scalar or per-channel list) | `img / x`<br>(div:{x:255} ≈ transforms.ToTensor()) |
 | `mul` | `x` | `img * x` |
 | `subtract` | `x` | `img - x` |
 | `add` | `x` | `img + x` |
-| `normalize` | `mean`, `std` (lists) | `(img - mean) / std` / `transforms.Normalize(...)` |
-| `transpose` | `axis` (e.g. `[2,0,1]`) | `np.transpose(img, axis)` / `tensor.permute(...)` |
+| `normalize` | `mean`, `std`<br>(lists) | `(img - mean) / std` / `transforms.Normalize(...)` |
+| `transpose` | `axis`<br>(e.g. [2,0,1]) | `np.transpose(img, axis)` / `tensor.permute(...)` |
 | `expandDim` | `axis` | `np.expand_dims(...)` / `tensor.unsqueeze(axis)` |
 | `squeeze` | `axis` | `np.squeeze(...)` / `tensor.squeeze(axis)` |
 | `slice` | `channel` | `img[..., channel]` |
-| `dtype` | `t` (numpy dtype) | `img.astype(t)` |
-| `pil_2_cv` | — | PIL→numpy BGR conversion |
+| `dtype` | `t`<br>(numpy dtype) | `img.astype(t)` |
+| `pil_2_cv` | — | PIL → numpy BGR conversion |
 
 !!! note "Output shape, dtype, and batch size"
     The compiler runs the verifier on `next(iter(dataloader))` and requires the **batched** sample shape to match the ONNX input shape **exactly**, including the batch dimension. So each `__getitem__` item must be `model_input_shape` without the leading batch dim (e.g. `[3, 224, 224]` for input `[1, 3, 224, 224]`), and `batch_size` must equal the model's input batch (normally `1`). Tensors should be `float32`.
 
 !!! note "Supported return types"
-    Each `__getitem__` may return: a single `torch.Tensor` (single-input models), a **`dict[str, torch.Tensor]`** keyed by ONNX input node name (**recommended for multi-input** — mapped by name), or a **list/tuple of tensors** (mapped by the model's internal input-node order, which may differ from your return order). All elements must be tensors. See [Use Case 2](02_08_Common_Use_Cases.md#use-case-2-multi-input-models-stereo-vision).
+    Each `__getitem__` may return: a single `torch.Tensor` (single-input models), a **`dict[str, torch.Tensor]`** keyed by ONNX input node name (**recommended for multi-input** — mapped by name), or a **list/tuple of tensors** (mapped by the model's internal input-node order, which may differ from your return order). All elements must be tensors. See [Use Case 2](04_04_Common_Use_Cases.md#use-case-2-multi-input-models-stereo-vision).
 
 ---
 
@@ -589,7 +589,7 @@ cfg.add_layer(bbox="bbox_head_p5", cls_conf="cls_head_p5")
     - **Type 0**: `add_layer("Conv_245", num_anchors=3)` — `layer` is a dict.
     - **Type 1 / 2**: `add_layer(bbox="...", cls_conf="...")` (optional `obj_conf=`) — `layer` is a list. Call once per detection scale.
 
-See [Use Case 8: PPU Hardware Acceleration](02_08_Common_Use_Cases.md#use-case-6-ppu-hardware-acceleration-yolo) for a complete script.
+See [Use Case 8: PPU Hardware Acceleration](04_04_Common_Use_Cases.md#use-case-6-ppu-hardware-acceleration-yolo) for a complete script.
 
 **`gen_log`**
 
@@ -607,7 +607,7 @@ See [Use Case 8: PPU Hardware Acceleration](02_08_Common_Use_Cases.md#use-case-6
 
 - **Type**: `bool`
 - **Default**: `False`
-- **Description**: Generate a self-contained HTML summary report (`<model_name>_summary.html`) in the output directory after compilation. See [Compilation Summary Report](04_02_Compilation_Summary_Report.md) for details.
+- **Description**: Generate a self-contained HTML summary report (`<model_name>_summary.html`) in the output directory after compilation. See [Compilation Summary Report](05_02_Compilation_Summary_Report.md) for details.
 
 **`use_q_pro`**
 
@@ -622,7 +622,7 @@ See [Use Case 8: PPU Hardware Acceleration](02_08_Common_Use_Cases.md#use-case-6
 - **Type**: `bool`
 - **Default**: `False`
 - **Description**: Generate an HTML quantization diagnosis report. Produces `{output_dir}/quant_diagnosis/{model}.qxnn` (resume checkpoint) and `{output_dir}/quant_diagnosis/diagnosis_report.html`.
-- **See also**: [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md)
+- **See also**: [Quantization Tuning Workflow](04_01_Quantization_Tuning_Workflow.md)
 
 **`checkpoint`** *(QXNN Resume)*
 
@@ -667,7 +667,7 @@ dx_com.compile(
 
 !!! note "QAT Details"
     For the full QAT workflow, the `qmaster` block, and all training hyperparameters,
-    see [Quantization-Aware Training (QAT)](02_08_Quantization_Aware_Training.md).
+    see [Quantization-Aware Training (QAT)](04_02_Quantization_Aware_Training.md).
 
 ---
 
@@ -692,7 +692,7 @@ dx_com.compile(
 )
 ```
 
-For more detailed examples — including DataLoader usage, multi-input models, edge device optimization, and advanced quantization — see [Common Use Cases](02_08_Common_Use_Cases.md).
+For more detailed examples — including DataLoader usage, multi-input models, edge device optimization, and advanced quantization — see [Common Use Cases](04_04_Common_Use_Cases.md).
 
 ---
 
