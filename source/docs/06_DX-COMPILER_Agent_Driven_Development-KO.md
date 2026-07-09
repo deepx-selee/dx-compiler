@@ -1,7 +1,8 @@
 # DEEPX Agent-Driven Development for DX-COM - dx-agent-dev (Beta)
 
-> **Beta 기능** — 에이전틱 개발 지원은 현재 활발히 개발 중입니다.
-> 스킬 정의와 라우팅 동작은 릴리스마다 변경될 수 있습니다.
+!!! note "Beta 기능"  
+
+    에이전틱 개발 지원은 현재 활발히 개발 중입니다. 스킬 정의와 라우팅 동작은 릴리스마다 변경될 수 있습니다.
 
 ## 소개
 
@@ -53,7 +54,9 @@ PyTorch (.pt)          ONNX (.onnx)                    DXNN (.dxnn)
 - ONNX opset: 11–21
 - 다중 입력 모델: Python API만 지원 (CLI 불가)
 
-> **참고:** 대상 디바이스는 항상 DX-M1입니다 — 에이전트는 하드웨어 선택에 대해 질문하지 않아야 합니다.
+!!! note "참고"  
+
+    대상 디바이스는 항상 DX-M1입니다 — 에이전트는 하드웨어 선택에 대해 질문하지 않아야 합니다.
 
 ## 에이전트 및 스킬
 
@@ -151,9 +154,9 @@ cursor dx-all-suite/dx-compiler
 | `dx-dxnn-compiler` | `.github/agents/dx-dxnn-compiler.agent.md` | `.claude/agents/dx-dxnn-compiler.md` | `.opencode/agents/dx-dxnn-compiler.md` |
 | `dx-model-converter` | `.github/agents/dx-model-converter.agent.md` | `.claude/agents/dx-model-converter.md` | `.opencode/agents/dx-model-converter.md` |
 
-> **Codex CLI 참고:** Codex는 여기서 `@mention` 에이전트 wrapper를 사용하지 않습니다.
-> `AGENTS.md`를 자동으로 읽고, 더 깊은 grounding이 필요하면 `.deepx/agents/*.md`
-> 또는 `.deepx/skills/*/SKILL.md`를 직접 참조합니다.
+!!! note "Codex CLI 참고"  
+
+    Codex는 여기서 `@mention` 에이전트 wrapper를 사용하지 않습니다. `AGENTS.md`를 자동으로 읽고, 더 깊은 grounding이 필요하면 `.deepx/agents/*.md` 또는 `.deepx/skills/*/SKILL.md`를 직접 참조합니다.  
 
 #### 스킬 파일 (모든 플랫폼)
 
