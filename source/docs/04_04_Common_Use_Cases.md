@@ -415,7 +415,7 @@ dx_com.compile(
 )
 ```
 
-!!! tip "Automatic vs Manual"
+!!! note "Automatic vs Manual"
     Start with `use_q_pro=True` for the easiest path to higher-accuracy quantization. Switch to a manual `enhanced_scheme` (e.g., `{"DXQ-P3": {...}}`) only when you need precise control over a specific DXQ scheme. See [Automatic Q-PRO (`use_q_pro`)](02_06_Execution_of_DX-COM.md#automatic-q-pro-use_q_pro).
 
 ---
@@ -426,12 +426,12 @@ dx_com.compile(
 
 This use case chains three v2.4.0 features into one tuning loop:
 
-1. **`quant_diagnosis`** — produces an HTML report of per-region quantization quality **plus** a reusable `.qxnn` checkpoint.
+1. **`quant_diagnosis`** — produces an HTML report of per-layer quantization quality **plus** a reusable `.qxnn` checkpoint.
 2. **QXNN Resume** — re-runs quantization from that `.qxnn` checkpoint, skipping the earlier compile phases.
 3. **Re-calibration / Q-PRO** — applies a different calibration method or enables Q-PRO during the resume to improve accuracy.
 
 !!! note "Version Support"
-    `quant_diagnosis` and QXNN Resume are available in **DX-COM v2.4.0 and later**. For the full workflow reference, see [Quantization Tuning Workflow](02_07_Quantization_Tuning_Workflow.md).
+    `quant_diagnosis` and QXNN Resume are available in **DX-COM v2.4.0 and later**. For the full workflow reference, see [Quantization Tuning Workflow](04_01_Quantization_Tuning_Workflow.md).
 
 ### Step 1 — Compile with diagnosis enabled
 
@@ -461,7 +461,7 @@ dx_com.compile(
 This produces:
 
 - `output/large_model/quant_diagnosis/large_model.qxnn` — resume checkpoint
-- `output/large_model/quant_diagnosis/diagnosis_report.html` — per-region report with ready-to-paste retry snippets
+- `output/large_model/quant_diagnosis/diagnosis_report.html` — per-layer report with ready-to-paste retry snippets
 
 Open the HTML report to identify high-severity regions and the recommended settings.
 
@@ -500,7 +500,7 @@ dx_com.compile(
 !!! note "Resume-only options"
     `--recalibration_method`, `--enhanced_scheme`, and `--dataset_path` are valid **only** in QXNN resume mode (i.e., with `--checkpoint`). `--checkpoint` and `-m/--model_path` are mutually exclusive. On resume, the calibration DataLoader is auto-built from the config embedded in the `.qxnn` — no `-c/--config_path` is required.
 
-!!! tip "Why this matters"
+!!! note "Why this matters"
     Because QXNN Resume skips the compile phases that don't depend on quantization, you can try several calibration methods or Q-PRO settings in quick succession, dramatically shortening the accuracy-tuning loop.
 
 ---
@@ -546,7 +546,7 @@ dx_com.compile(
 )
 ```
 
-For supported model families (YOLOv8 / YOLOv9 / YOLOv11 / YOLOv12 / YOLOv13 via the `yolo_postprocess` pass, and YOLOv10 / YOLO26 via the `yolo26_postprocess` pass), output shapes, instance-segmentation usage, and the migration recipe from the deprecated `ppu.type = 2`, see [Pre-Optimize API](02_09_Pre_Optimize_API.md).
+For supported model families (YOLOv8 / YOLOv9 / YOLOv11 / YOLOv12 / YOLOv13 via the `yolo_postprocess` pass, and YOLOv10 / YOLO26 via the `yolo26_postprocess` pass), output shapes, instance-segmentation usage, and the migration recipe from the deprecated `ppu.type = 2`, see [Pre-Optimize API](04_03_Pre_Optimize_API.md).
 
 ---
 
