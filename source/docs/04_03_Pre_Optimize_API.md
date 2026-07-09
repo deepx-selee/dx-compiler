@@ -228,11 +228,11 @@ optimized = dx_com.pre_optimize(model, passes={
 
 ## Performance Reference (DeepX DX-M1, ARM Cortex-A53)
 
-| Model | Before (FPS) | After (FPS) | Speed-up |
-|-------|---:|---:|---:|
-| YOLOv8n det | 61 | 348 | **5.7×** |
-| YOLOv8n seg | 59 | 187 | **3.2×** |
-| YOLO26n | 176 | 315 | **1.8×** |
+| Model Type | Before (FPS) | After (FPS) | Speed-up |
+| :--- | :---: | :---: | :---: |
+| YOLOv8n det | 61 | 348 | **5.7x** |
+| YOLOv8n seg | 59 | 187 | **3.2x** |
+| YOLO26n | 176 | 315 | **1.8x** |
 
 End-to-end throughput improves significantly because CPU post-processing is no longer the bottleneck on CPU-constrained hosts.
 
@@ -242,7 +242,7 @@ End-to-end throughput improves significantly because CPU post-processing is no l
 
 If you previously used `ppu.type = 2` in the JSON configuration file, switch to `dx_com.pre_optimize()`.
 
-**Previous (deprecated):**
+**Previous (deprecated):**  
 
 ```json
 {
@@ -284,11 +284,11 @@ dx_com.compile(model=optimized, config="config.json", output_dir="./output")
 
 **Differences:**
 
-| | PPU Type 2 (previous) | `pre_optimize` (current) |
+| Type | PPU Type 2 (previous) | `pre_optimize` (current) |
 |--|--|--|
 | Configuration location | JSON config file | Python API |
-| Segmentation support | ❌ | ✅ |
-| YOLOv10 / YOLO26 support | ❌ | ✅ (`yolo26_postprocess`) |
+| Segmentation support | X | O |
+| YOLOv10 / YOLO26 support | X | O (`yolo26_postprocess`) |
 | Required parameters | (none beyond JSON fields) | `input_height`, `input_width` (per-scale stride derivation) |
 
 ---
