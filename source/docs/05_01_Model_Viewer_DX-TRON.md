@@ -1,5 +1,9 @@
 ## Overview
 
+!!! warning "Deprecation Notice — DX-TRON"
+
+    Starting with DX-Compiler **v2.4.0**, **DX-TRON is deprecated** and will be removed in a future release. No further feature updates or bug fixes are planned for DX-TRON. We recommend migrating to the new **HTML graph viewer** bundled with DX-COM (see [Compilation Summary Report](05_02_Compilation_Summary_Report.md)) for model inspection and visualization.
+
 **DX-TRON** is a graphical visualization tool for exploring .dxnn model files compiled with the DEEPX toolchain.  
 It allows users to load and inspect model structures, view workload distribution between NPU and CPU through color-coded graphs. With **DX-TRON**, users can better understand model execution flow and improve overall performance.  
 
@@ -46,7 +50,9 @@ For detailed installation instructions using the automated installation script, 
 | RHEL | 9, 10 | x86_64 (amd64), ARM64 (aarch64) | Web only |
 | CentOS | 9, 10 | x86_64 (amd64), ARM64 (aarch64) | Web only |
 
-> **Note:** On the Red Hat family (Fedora / RHEL / CentOS), only the DX-TRON web variant is installed. The `dxtron` CLI/desktop (AppImage) binary is supported on the Debian/Ubuntu family only. Launch the web server with `./run_dxtron_web.sh --port=8080`.
+!!! note "NOTE"  
+
+    On the Red Hat family (Fedora / RHEL / CentOS), only the DX-TRON web variant is installed. The `dxtron` CLI/desktop (AppImage) binary is supported on the Debian/Ubuntu family only. Launch the web server with `./run_dxtron_web.sh --port=8080`.  
 
 DX-TRON can be installed using one of the following methods:
 
