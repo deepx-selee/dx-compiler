@@ -10,8 +10,8 @@ theme:
     #text: Noto Serif
     #code: Noto Sans 
     code: Roboto Mono 
-  logo: ./img/deepx.png
-  favicon: ./img/favicon.png
+  logo: img/deepx.png
+  #favicon: img/favicon.png
   palette:
     # Palette toggle for light mode
     - scheme: default
@@ -33,6 +33,7 @@ theme:
      - navigation.tabs.sticky
      - content.tabs.link
      - content.code.copy
+site_url: 'https://developer.deepx.ai/'
 nav:
   - Quick Start Guide : docs/00_Quick_Start.md
   - DXNN SDK Overview: docs/01_DXNN_Compiler_Overview.md
@@ -44,14 +45,15 @@ nav:
       - JSON File Configuration: docs/02_05_JSON_File_Configuration.md
       - Execution of DX-COM: docs/02_06_Execution_of_DX-COM.md
   - Building Models: docs/03_Building_Models.md
-  - Quantization Tuning Workflow: docs/02_07_Quantization_Tuning_Workflow.md
-      - Quantization-Aware Training (QAT): docs/02_08_Quantization_Aware_Training.md
-      - Pre-Optimize API: docs/02_09_Pre_Optimize_API.md
-      - Common Use Cases: docs/02_08_Common_Use_Cases.md
+  - Quantization Tuning Workflow:
+      - Overview: docs/04_01_Quantization_Tuning_Workflow.md
+      - Quantization-Aware Training (QAT): docs/04_02_Quantization_Aware_Training.md
+      - Pre-Optimize API: docs/04_03_Pre_Optimize_API.md
+      - Common Use Cases: docs/04_04_Common_Use_Cases.md
   - Development Tools:
-      - Model Viewer_DX-TRON: docs/04_01_Model_Viewer_DX-TRON.md
-      - Compilation Summary Report: docs/04_02_Compilation_Summary_Report.md
-  - Agent-Driven Development Guide: docs/05_DX-COMPILER_Agent_Driven_Development.md
+      - Model Viewer_DX-TRON: docs/05_01_Model_Viewer_DX-TRON.md
+      - Compilation Summary Report: docs/05_02_Compilation_Summary_Report.md
+  - Agent-Driven Development Guide: docs/06_DX-COMPILER_Agent_Driven_Development.md
   - Change Log: docs/Appendix_Change_Log.md
 
 plugins:
@@ -62,9 +64,10 @@ plugins:
       cover_title: DXNN Compiler (DX-COM) User Manual
       cover_subtitle: 2026/06/16 (v2.4.0)
       cover_logo: img/deepx.png
-      custom_template_path: docs/stylesheets
+      custom_template_path: source/stylesheets
       output_path: ../DEEPX_DX-COM_UM_v2.4.0_JUN_2026.pdf
 extra:
+  homepage: https://developer.deepx.ai
   generator: false
   social:
      - icon: fontawesome/brands/linkedin
@@ -84,6 +87,7 @@ markdown_extensions:
   - toc:
         permalink: "true"
         baselevel: 1
+        separator: ">_"
         toc_depth: 3
   - pymdownx.critic
   - pymdownx.caret
@@ -98,11 +102,9 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.tabbed:
-      alternate_style: true 
+      alternate_style: true
   - attr_list
   - md_in_html
 extra_javascript:
-  - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 copyright: ⓒ Copyright 2026 <a href="http://deepx.ai">DEEPX</a>. All Rights Reserved.
