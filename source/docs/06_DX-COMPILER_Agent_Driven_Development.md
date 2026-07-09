@@ -1,7 +1,8 @@
 # DEEPX Agent-Driven Development for DX-COM - dx-agent-dev (Beta)
 
-> **Beta Feature** — Agent-Driven development support is under active development.
-> Skill definitions and routing behavior may change between releases.
+!!! note "Beta Feature"  
+
+    Agent-Driven development support is under active development. Skill definitions and routing behavior may change between releases.
 
 ## Introduction
 
@@ -53,7 +54,9 @@ PyTorch (.pt)          ONNX (.onnx)                    DXNN (.dxnn)
 - ONNX opset: 11–21
 - Multi-input models: Python API only (not CLI)
 
-> **Note:** Target device is always DX-M1 — agents should not ask about hardware selection.
+!!! note "Beta Feature"  
+
+    Target device is always DX-M1 — agents should not ask about hardware selection.
 
 ## Available Agents and Skills
 
@@ -151,9 +154,9 @@ Each AI coding agent auto-loads different configuration files at the dx-compiler
 | `dx-dxnn-compiler` | `.github/agents/dx-dxnn-compiler.agent.md` | `.claude/agents/dx-dxnn-compiler.md` | `.opencode/agents/dx-dxnn-compiler.md` |
 | `dx-model-converter` | `.github/agents/dx-model-converter.agent.md` | `.claude/agents/dx-model-converter.md` | `.opencode/agents/dx-model-converter.md` |
 
-> **Codex CLI note:** Codex does not use `@mention` agent wrappers here. It reads
-> `AGENTS.md` automatically and then consults `.deepx/agents/*.md` or
-> `.deepx/skills/*/SKILL.md` directly for deeper grounding.
+!!! note "Codex CLI note"  
+
+    Codex does not use `@mention` agent wrappers here. It reads `AGENTS.md` automatically and then consults `.deepx/agents/*.md` or `.deepx/skills/*/SKILL.md` directly for deeper grounding.
 
 #### Skill Files (All Platforms)
 
