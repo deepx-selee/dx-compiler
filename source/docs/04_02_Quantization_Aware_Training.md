@@ -142,13 +142,13 @@ KD uses the original floating-point model as a teacher to guide the quantized st
 The following parameters control **training vs. compilation** behavior. They are available through the Python API (`dx_com.compile()`); the `dxcom` CLI runs the full QAT pipeline directly from the `qmaster` block.
 
 | Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `quantization_mode` | `str` | `"ptq"` | Keep as `"ptq"` (default) to let QAT be auto-selected when a `qmaster` block is present. Set to `"qat"` only when supplying `qat_config` directly in Python — doing so bypasses `qmaster` auto-detection. When set to `"qat"`, you must provide either `qat_config` (for training) or `qat_skip_training=True` (for compile-only/resume). |
-| `qat_config` | `Optional[Dict]` | `None` | QAT training hyperparameters. Normally supplied via the `qmaster` block in the config JSON; this argument is an alternative for callers that build the config in code. |
-| `qat_skip_training` | `bool` | `False` | Skip the training loop and run compilation only (Stage 2). Use with `qat_resume_from_checkpoint`. |
-| `qat_resume_from_checkpoint` | `Optional[str]` | `None` | Path to a `qat_checkpoint.qxnn`. Loads trained weights, then compiles (or continues). |
+| :--- | :---: | :---: | :--- |
+| `quantization_mode` | `str` | `"ptq"` | Keep as `"ptq"` (default) to let QAT be auto-selected when a `qmaster` block is present. Set to `"qat"` only when supplying `qat_config` directly in Python — doing so bypasses `qmaster` auto-detection.<br>(When set to "qat", you must provide either qat_config for training or qat_skip_training=True for compile-only/resume) |
+| `qat_config` | `Optional[Dict]` | `None` | QAT training hyperparameters.<br>(Normally supplied via the qmaster block in the config JSON; this argument is an alternative for callers that build the config in code) |
+| `qat_skip_training` | `bool` | `False` | Skip the training loop and run compilation only.<br>(Stage 2, use with qat_resume_from_checkpoint) |
+| `qat_resume_from_checkpoint` | `Optional[str]` | `None` | Path to a `qat_checkpoint.qxnn`. <br>(Loads trained weights, then compiles or continues) |
 
-!!! tip "Re-running Compilation Only"
+!!! note "Re-running Compilation Only"
     Training can take a long time. After a successful run you can regenerate the
     `.dxnn` without re-training by passing the saved checkpoint:
     `qat_skip_training=True` together with `qat_resume_from_checkpoint="<path>.qxnn"`.
@@ -215,7 +215,7 @@ dx_com.compile(
     default ImageNet location instead of failing. Verify the dataset path in the log to
     make sure training used the data you intended.
 
-!!! tip "Reducing GPU Memory"
+!!! note "Reducing GPU Memory"
     If you hit out-of-memory errors, lower `batch_size` and/or raise
     `gradient_accumulation_steps` to keep the effective batch size constant. Setting
     `"train_cpu_fp": true` moves the FP teacher to CPU to save GPU memory (slightly slower).
